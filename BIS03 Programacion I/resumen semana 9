@@ -1,0 +1,48 @@
+package resumen;
+
+import java.util.Scanner;
+
+public class Resumen {
+
+    public static void main(String[] args) {
+        Scanner reader = new Scanner(System.in);
+        Scanner teclado = new Scanner(System.in);
+        Scanner dato = new Scanner(System.in);
+
+        int edad;
+        int menu;
+        String nombre;
+
+        System.out.println("---Menu---");
+        System.out.println("1. Edad");
+        System.out.println("2. Nombre");
+        menu = reader.nextInt();
+
+        switch (menu) {
+            case 1: {
+                System.out.println("Ingrese su edad");
+                
+                edad = dato.nextInt();
+
+                if (edad > 18) {
+                    System.out.println("Su edad es de " + edad + " , Usted es mayor de edad");
+                    
+
+                } else {
+                    System.out.println("Su edad es de " + edad + " , Usted es menor de edad");
+                }
+                break;
+            }
+            case 2: {
+                System.out.println("Ingrese su nombre");
+                nombre = teclado.nextLine();
+
+                System.out.println("Hola Buenos dias " + nombre);
+                break;
+            }
+
+        }
+
+    }
+
+}

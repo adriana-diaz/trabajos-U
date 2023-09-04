@@ -1,0 +1,81 @@
+package tareaaguin;
+import java.util.Scanner;
+public class Tareaaguin {
+
+    public static void main(String[] args) {
+       Scanner reader = new Scanner(System.in);
+      int menu =0;  
+      double mes1 = 0;
+      double mes2 = 0;
+      double mes3 = 0;
+      double mes4 = 0;
+      double mes5 = 0;
+      double mes6 = 0;
+      double mes7 = 0;
+      double mes8 = 0;
+      double mes9 = 0;
+      double mes10 = 0;
+      double mes11 = 0;
+      double mes12 = 0;
+      double multi = 0;
+      double deduccion1 = 0;
+      double deduccion2 = 0;
+      double aguinaldo=0;
+        
+      System.out.println("------Menu------") ;
+    System.out.println("1- Conozca su aguinaldo y sus deducciones ") ;  
+    menu= reader.nextInt();
+      
+      
+      switch (menu){
+          case 1: {
+      
+     System.out.println("Ingrese el salario de enero");
+     mes1 = reader.nextInt();
+     System.out.println("Ingrese el salario de febrero");
+     mes2 = reader.nextInt();
+     System.out.println("Ingrese el salario de marzo");
+     mes3 = reader.nextInt();
+     System.out.println("Ingrese el salario de abril");
+     mes4 = reader.nextInt();
+     System.out.println("Ingrese el salario de mayo");
+     mes5 = reader.nextInt();
+     System.out.println("Ingrese el salario de junio");
+     mes6 = reader.nextInt();
+     System.out.println("Ingrese el salario de julio");
+     mes7 = reader.nextInt();
+     System.out.println("Ingrese el salario de agosto");
+     mes8 = reader.nextInt();
+     System.out.println("Ingrese el salario de septiembre");
+     mes9 = reader.nextInt();
+     System.out.println("Ingrese el salario de octubre");
+     mes10 = reader.nextInt();
+     System.out.println("Ingrese el salario de noviembre");
+     mes11 = reader.nextInt();
+     System.out.println("Ingrese el salario de diciembre");
+     mes12 = reader.nextInt(); 
+        
+     aguinaldo =(mes1+mes2+mes3+mes4+mes5+mes6+mes7+mes8+mes9+mes10+mes11+mes12)/12; 
+        
+     if (aguinaldo>=1000000) {
+         multi = aguinaldo*.05;
+         deduccion1 = aguinaldo - multi;
+        System.out.println("El aguinaldo neto es de: "+deduccion1);
+        System.out.println("El aguinaldo bruto es de: "+aguinaldo);
+     }
+     else {
+         multi = aguinaldo *.02;
+         deduccion2 = aguinaldo - multi;
+         System.out.println("El aguinaldo neto es de: "+deduccion2);
+         System.out.println("El aguinaldo bruto es de: "+aguinaldo);
+     }
+              break;
+     
+     
+     
+     
+        }
+    
+       }      
+        
+    }}

@@ -1,0 +1,70 @@
+package javaapplication6;
+import java.util.Scanner;
+
+public class JavaApplication6 {
+    public static void main(String[] args) {
+        Scanner reader = new Scanner (System.in);
+        int menu=0;
+    int num1, num2, resultado=0;
+    System.out.println("------Menu practica------") ;
+    System.out.println("1- SUMA DE DOS NUMEROS ") ;
+    System.out.println("2- RESTA DE DOS NUMEROS ") ;
+    System.out.println("3- MULTIPLICACION DE DOS NUMEROS ") ;
+    System.out.println("4- DIVISION DE DOS NUMEROS ") ;
+    System.out.println("5- SALIR ") ;        
+    menu= reader.nextInt();
+     switch (menu) {  
+         case 1:
+         {
+             System.out.println("Programa que suma 2 numeros") ;
+             System.out.println("Escriba el numero 1");
+             num1= reader.nextInt();
+             System.out.println("Escriba el numero 2");
+             num2= reader.nextInt();
+             resultado = num1+num2;
+             System.out.println("El resultado de la suma es: "+resultado) ;
+             break;
+         }
+         
+         
+         case 2:
+         {
+         
+             System.out.println("Programa que resta 2 numeros") ;
+             System.out.println("Escriba el numero 1");
+             num1= reader.nextInt();
+             System.out.println("Escriba el numero 2");
+             num2= reader.nextInt();
+             resultado = num1-num2;
+             System.out.println("El resultado de la resta es: "+resultado) ;
+             break;
+         }
+           case 3:
+     {
+             System.out.println("Programa que multiplique 2 numeros") ;
+             System.out.println("Escriba el numero 1");
+             num1= reader.nextInt();
+             System.out.println("Escriba el numero 2");
+             num2= reader.nextInt();
+             resultado = num1*num2;
+             System.out.println("El resultado de la resta es: "+resultado) ;
+             break;
+    }
+           case 4:{
+            System.out.println("Programa que divide 2 numeros") ;
+             System.out.println("Escriba el numero 1");
+             num1= reader.nextInt();
+             System.out.println("Escriba el numero 2");
+             num2= reader.nextInt();
+             resultado = num1/num2;
+             System.out.println("El resultado de la resta es: "+resultado) ;
+             break;  
+               
+               
+           }
+         }
+      }
+   
+    }
+   
+   

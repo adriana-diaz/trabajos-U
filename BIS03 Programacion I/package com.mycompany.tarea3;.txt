@@ -1,0 +1,22 @@
+package com.mycompany.tarea3;
+
+import java.util.Scanner;
+
+public class Tarea3 {
+
+    public static void main(String[] args) {
+        Scanner dato = new Scanner(System.in);
+      int edad;
+      System.out.println("ingrese su edad: ");
+      edad = dato.nextInt();
+      
+      if(edad>=60){
+          edad=edad+10;
+          System.out.println("Su edad es de "+edad);
+      }
+      else{
+          System.out.println("Su edad es de "+edad);
+      }
+    }
+    }
+

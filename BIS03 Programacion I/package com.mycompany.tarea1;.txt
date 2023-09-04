@@ -1,0 +1,53 @@
+package com.mycompany.tarea1;
+import java.util.Scanner;
+
+public class Tarea1 {
+
+    public static void main(String[] args) {
+    Scanner reader = new Scanner (System.in);    
+    double salarioene= 0;
+    double salariofeb= 0;
+    double salariomar= 0;    
+    double salarioabr= 0;    
+    double salariomayo= 0;    
+    double salariojun= 0;    
+    double salariojul= 0;    
+    double salarioago= 0;
+    double salariosep= 0;
+    double salariooct= 0;
+    double salarionov= 0;
+    double salariodic= 0;
+    double resultado= 0;
+    double resultadofinal= 0;
+
+    System.out.println("ingrese su salario de enero");
+    salarioene= reader.nextInt();
+    System.out.println("ingrese su salario de febrero");
+    salariofeb= reader.nextInt();
+    System.out.println("ingrese su salario de marzo");
+    salariomar= reader.nextInt();
+    System.out.println("ingrese su salario de abril");
+    salarioabr= reader.nextInt();
+    System.out.println("ingrese su salario de mayo");
+    salariomayo= reader.nextInt();
+    System.out.println("ingrese su salario de junio");
+    salariojun= reader.nextInt();
+    System.out.println("ingrese su salario de julio");
+    salariojul= reader.nextInt();
+    System.out.println("ingrese su salario de agosto");
+    salarioago= reader.nextInt();
+    System.out.println("ingrese su salario de septiembre");
+    salariosep= reader.nextInt();
+    System.out.println("ingrese su salario de octubre");
+    salariooct= reader.nextInt();
+    System.out.println("ingrese su salario de noviembre");
+    salarionov= reader.nextInt();
+    System.out.println("ingrese su salario de diciembre");
+    salariodic= reader.nextInt();
+    
+    resultado=(salarioene+salariofeb+salariomar+salarioabr+salariomayo+salariojun+salariojul+salarioago+salariosep+salariooct+salarionov+salariodic); 
+    resultadofinal=(resultado/12);
+    
+    System.out.println("Su aguinaldo es de " +resultadofinal);
+    }
+}

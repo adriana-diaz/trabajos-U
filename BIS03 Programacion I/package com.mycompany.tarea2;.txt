@@ -1,0 +1,52 @@
+package com.mycompany.tarea2;
+import java.util.Scanner;
+
+public class Tarea2 {
+
+    public static void main(String[] args) {
+    Scanner reader = new Scanner (System.in);
+    Scanner teclado = new Scanner (System.in);
+    int num1=0;
+    int num2=0;
+    int num3=0;
+    int num4=0;
+    double suma=0;
+    double resta=0;
+    double multiplicacion=0;
+    double division=0;
+    double promedio=0;
+    String nombre;
+    
+    System.out.println("Ingrese su nombre");
+    
+    nombre = teclado.nextLine();
+    System.out.print("Hola " +nombre);
+    
+    
+    System.out.println("Ingrese el primer numero");
+    num1 = reader. nextInt();
+    System.out.println("Ingrese el segundo numero");
+    num2 = reader. nextInt();
+    System.out.println("Ingrese el tercero numero");
+    num3 = reader. nextInt();
+    System.out.println("Ingrese el cuarto numero");
+    num4 = reader. nextInt();
+    
+    
+    suma=(num1+num2+num3+num4);
+    promedio=(suma/4);
+    resta=(num1-num2-num3-num4);
+    division=(num1/num2/num3/num4);
+    multiplicacion=(num1*num2*num3*num4);
+    
+    System.out.println("la suma de sus numeros es de  " +suma);
+    System.out.println("la resta de sus numero es de " +resta);
+    System.out.println("el promedio de los numeros es de" +promedio);
+    System.out.println("la multiplicacion de los numeros es de" +multiplicacion);
+    System.out.println("la division de los numeros es de" +division);
+    
+    
+    
+    }
+}
+        

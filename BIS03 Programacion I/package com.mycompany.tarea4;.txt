@@ -1,0 +1,35 @@
+package com.mycompany.tarea4;
+
+import java.util.Scanner;
+
+public class Tarea4 {
+
+    public static void main(String[] args) {
+      Scanner reader = new Scanner (System.in);  
+        
+        int nota1= 0;
+        int nota2= 0;
+        int nota3= 0;
+        double promedio =0;
+        double promediofinal=0;
+        
+    System.out.println("Ingrese la nota del primer trimestre");
+    nota1 = reader. nextInt();
+    System.out.println("Ingrese la nota del segundo trimestre");
+    nota2 = reader. nextInt();
+    System.out.println("Ingrese la nota del tercer trimestre");
+    nota3 = reader. nextInt();
+    
+        promedio=(nota1+nota2+nota3);
+        promediofinal=(promedio/3);
+        
+        
+        if(promedio>=70){
+          System.out.println("Aprovado");
+      }
+      else{
+          System.out.println("Reprobado");
+      }
+       System.out.println("el promedio de los trimestres es de" +promediofinal); 
+        
+        

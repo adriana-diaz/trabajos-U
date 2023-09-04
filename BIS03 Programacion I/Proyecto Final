@@ -1,0 +1,539 @@
+package javaapplication5;
+
+//importa las clases LocalDate y ChronoUnit de la biblioteca de tiempo de Java.`
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Scanner;
+
+//establece la clase ProyectoProgra como la clase principal del programa.
+public class JavaApplication5 {
+
+    @SuppressWarnings("empty-statement")
+    public static void main(String[] args) throws InterruptedException {
+                //objeto Scanner para leer la entrada del usuario.
+       Scanner reader = new Scanner(System.in);
+        //una variable entera 'menu' y se establece en 0.
+        int  menu = 0; 
+        
+        
+        //un bucle do-while que imprime un menÃƒÂº y lee la entrada del usuario. 
+        //El bucle se repite hasta que se seleccione la opciÃƒÂ³n '6', que corresponde a salir del programa.
+         do{
+             
+        System.out.println("Del 1 al 6 seleccione una opcion");
+        System.out.println("1:Calculo de prestaciones laborales de un trabajador. ");
+        System.out.println("2:Calculo de salario.");
+        System.out.println("3:Calculo de Aguinaldo.");
+        System.out.println("4:Calculo de salario Escolar. ");
+        System.out.println("5:Calculo de diÂ­as de vacaciones.");
+        System.out.println("6:Salir");
+        menu= reader.nextInt();
+        //se utiliza una estructura switch-case para ejecutar el cÃƒÂ³digo correspondiente a la opciÃƒÂ³n seleccionada por el usuario.
+        switch (menu){
+         case 1:
+             //La opciÃƒÂ³n '1' permite al usuario calcular las prestaciones laborales de un trabajador. 
+             //Se define una variable entera 'menu2' y se establece en 0.
+        Scanner reader6 = new Scanner(System.in);
+
+        int  menu2 = 0;
+
+        //Se inicia otro bucle do-while que imprime un submenÃƒÂº y lee la entrada del usuario. 
+        //El bucle se repite hasta que se seleccione la opciÃƒÂ³n '3', que corresponde a volver al menÃƒÂº principal.
+        do{
+        System.out.println("Del 1 al 3 seleccione una opcion");
+        System.out.println("1:Con responsabilidad patronal ");
+        System.out.println("2:Sin responsabilidad patronal");
+        System.out.println("3:Salir");
+         menu2= reader6.nextInt();
+         //Dentro del bucle do-while interno, se utiliza otra estructura switch-case 
+         //para ejecutar el cÃƒÂ³digo correspondiente a la opciÃƒÂ³n seleccionada por el usuario.
+         switch (menu2){
+             case 1:
+                 //La opcion '1' permite al usuario calcular las prestaciones laborales de un trabajador 
+                 //con responsabilidad patronal. Se utiliza otro objeto Scanner para leer la entrada del usuario.
+             Scanner input = new Scanner(System.in);
+             //El programa pide al usuario que ingrese el nombre del trabajador, la cÃƒÂ©dula, el salario por hora, 
+             //las horas trabajadas por dÃƒÂ­a, los dÃƒÂ­as trabajados a la semana y la cantidad de dÃƒÂ­as de vacaciones al mes.
+        System.out.println("Ingrese el nombre del trabajador:");
+        String nombre = input.nextLine();
+        
+        System.out.println("Ingrese el numero de cedula del trabajador:");
+        String cedula = input.nextLine();
+
+        System.out.println("Ingrese el salario por hora del trabajador:");
+        double salariohora = input.nextDouble();
+        
+        System.out.println("Ingrese las horas trabajadas por dia del trabajador:");
+        double horasdiarias = input.nextDouble();
+        
+        System.out.println("Ingrese los dias trabajados a la semana del trabajador:");
+        double diasSemana = input.nextInt();
+        
+        System.out.println("Ingrese la cantidad de diÂ­as de vacaciones al mes:");
+        double diasVacaciones = input.nextInt();
+       
+        System.out.println("Ingrese la modalidad de pago \n 1.Mensual/quincenal \n 2.Semanal");
+        double modalidad = 0;
+        modalidad = input.nextInt();
+        double prommensual;
+        System.out.println("Ingrese la cantidad de meses debidos de aguinaldo");
+        double mesesaguinaldo = 0;
+        mesesaguinaldo = input.nextInt();
+        
+        double salarioDiario = salariohora * horasdiarias;
+        double salarioSemanal = salarioDiario * diasSemana;
+        double salarioMensual = salarioSemanal * 4;
+        double salarioProporcional = salarioMensual / 30.0;
+        double montoCesantia = 0;
+        //el programa calcula el salario diario, el salario semanal, el salario mensual, el salario proporcional, 
+        //el monto correspondiente a las vacaciones, el monto correspondiente al aguinaldo, el monto correspondiente 
+        //a la cesantiÂ­a, el monto total de las prestaciones laborales, el monto correspondiente a la responsabilidad patronal 
+        //y el monto total a pagar por las prestaciones laborales.
+         Scanner scanner = new Scanner(System.in);
+            System.out.println("Ingrese la fecha de ingreso del empleado (yyyy-mm-dd): ");
+            LocalDate fechaIngreso = LocalDate.parse(scanner.nextLine());
+            
+            System.out.println("Ingrese la fecha actual (yyyy-mm-dd): ");
+            LocalDate fechaActual = LocalDate.parse(scanner.nextLine());
+            
+            int meses = (int) ChronoUnit.MONTHS.between(fechaIngreso, fechaActual);
+            
+            double diascesantia = 0;
+            
+            System.out.println("El empleado tiene " + meses + " dÃ­as libres.");
+            
+         int meses2 = 0;
+         System.out.println("Ingrese los meses de aguinaldo");
+         meses2 = reader.nextInt();
+         double salario[];
+         double total=0;
+         double total2= 0;
+         double aguinaldo=0;
+         double promdiario;
+                 if (meses<6) {
+                     salario = new double [6];
+                     for (int i=0; i<salario.length;i++) {
+                     System.out.println("Ingrese su salario");
+                     salario[i] = reader.nextDouble();
+                     System.out.println("Esta cantidad de meses no aplican para la cesantia.");
+                     total2 += salario[i];
+                         if (i>salario.length - meses2) {
+                             total += salario[i];
+                         }
+                     }
+                 } else {
+                     salario = new double[meses2];
+                     for (int i=0; i<salario.length;i++) {
+                System.out.println("Ingrese el salario del mes #"+(i+1));
+                salario[i] = reader.nextDouble();
+                total += salario[i];
+                         if (i>salario.length - 6) {
+                             total2 += salario[i];
+                         }
+                 }
+                 }
+                 aguinaldo = total/12;
+                 
+                 prommensual = total2/6;
+                 
+                 if (modalidad<=1) {
+                     promdiario =  prommensual/30;
+                 }else {
+                     promdiario =  prommensual/26;
+                 }
+                 
+                 double diasaÃ±o = 0;
+                 if (meses>3&& meses<6) {
+                     diascesantia+= 7;
+                 }else if(meses>6&&meses<12){
+                     diascesantia+= 14;
+                 }else if(meses>12&&meses<24){
+                     diasaÃ±o= 19.5;
+                 }else if(meses>24&&meses<36){
+                     diasaÃ±o= 20;
+                 }else if(meses>36&&meses<48){
+                     diasaÃ±o= 20.5;
+                 }else if(meses>48&&meses<60){
+                     diasaÃ±o= 21;
+                 }else if(meses>60&&meses<72){
+                     diasaÃ±o=21.24;
+                 }else if(meses>72&&meses<84){
+                     diasaÃ±o=21.5;
+                 }else if(meses>84&&meses<120){
+                     diasaÃ±o=22;
+                 }else if(meses>120&&meses<132){
+                     diasaÃ±o=21.5;
+                 }else if(meses>132&&meses<144){
+                     diasaÃ±o=21;
+                 }else if(meses>144&&meses<156){
+                     diasaÃ±o=20.5;
+                 }else if(meses>=156){
+                     diasaÃ±o=20;
+                 }
+                 
+        double aÃ±os = Math.round(meses/12);
+        System.out.println("AÃ±os"+aÃ±os);
+        diascesantia = aÃ±os*diasaÃ±o;
+        double montocesantia = diascesantia*promdiario;
+        double montoVacaciones = promdiario * diasVacaciones;
+        double montoTotal = montoVacaciones + aguinaldo + montocesantia;
+
+        double montoResponsabilidadPatronal = montoTotal * 0.0925;
+
+        double montoTotalAPagar = montoTotal + montoResponsabilidadPatronal;
+        //Finalmente, el programa muestra el informe de liquidaciÃƒÂ³n del trabajador que incluye 
+        //todos los montos y detalles del cÃƒÂ¡lculo.
+        System.out.println("Informe de liquidacion de " + nombre);
+        System.out.println("Cedula: " + cedula);
+        System.out.println("Salario semanal: " + salarioSemanal);
+        System.out.println("Salario mensual: " + salarioMensual);
+        System.out.println("Salario proporcional: " + salarioProporcional);
+        System.out.println("Monto correspondiente a vacaciones: " + montoVacaciones);
+        System.out.println("Monto correspondiente a aguinaldo: " + aguinaldo);
+        System.out.println("Monto total de las prestaciones laborales: " + montoTotal);
+        System.out.println("Monto correspondiente a la responsabilidad patronal: " + montoResponsabilidadPatronal);
+        System.out.println("Monto total a pagar por las prestaciones laborales: " + montoTotalAPagar);
+                 if (menu2<=1) {
+                     System.out.println("Monto correspondiente a cesantiÂ­a: " + montocesantia);
+                 } 
+         break;
+
+
+
+
+         //La opcion '2' permite al usuario calcular las prestaciones laborales de un trabajador sin responsabilidad patronal. 
+         //El proceso es similar a la opciÃƒÂ³n anterior, pero sin el cÃƒÂ¡lculo del monto correspondiente a la responsabilidad patronal.
+             case 2:
+                 Scanner teclado= new Scanner(System.in);
+             //El programa pide al usuario que ingrese el nombre del trabajador, la cÃƒÂ©dula, el salario por hora, 
+             //las horas trabajadas por dÃƒÂ­a, los dÃƒÂ­as trabajados a la semana y la cantidad de dÃƒÂ­as de vacaciones al mes.
+        System.out.println("Ingrese el nombre del trabajador:");
+        String nombre2 = teclado.nextLine();
+        
+        System.out.println("Ingrese el numero de cedula del trabajador:");
+        String cedula2 = teclado.nextLine();
+
+        System.out.println("Ingrese el salario por hora del trabajador:");
+        double salariohora2 = reader.nextDouble();
+        
+        System.out.println("Ingrese las horas trabajadas por dia del trabajador:");
+        double horasdiarias2 = reader.nextDouble();
+        
+        System.out.println("Ingrese los dias trabajados a la semana del trabajador:");
+        double diasSemana2 = reader.nextInt();
+        
+        System.out.println("Ingrese la cantidad de diÂ­as de vacaciones al mes:");
+        double diasVacaciones2 = reader.nextInt();
+       
+        System.out.println("Ingrese la modalidad de pago \n 1.Mensual/quincenal \n 2.Semanal");
+        double modalidad2 = 0;
+        modalidad = reader.nextInt();
+        double prommensual2;
+        System.out.println("Ingrese la cantidad de meses debidos de aguinaldo");
+        double mesesaguinaldo2 = 0;
+        mesesaguinaldo = reader.nextInt();
+        
+        double salarioDiario2 = salariohora2 * horasdiarias2;
+        double salarioSemanal2 = salarioDiario2 * diasSemana2;
+        double salarioMensual2 = salarioSemanal2 * 4;
+        double salarioProporcional2 = salarioMensual2 / 30.0;
+        //el programa calcula el salario diario, el salario semanal, el salario mensual, el salario proporcional, 
+        //el monto correspondiente a las vacaciones, el monto correspondiente al aguinaldo, el monto correspondiente 
+        //a la cesantiÂ­a, el monto total de las prestaciones laborales, el monto correspondiente a la responsabilidad patronal 
+        //y el monto total a pagar por las prestaciones laborales.
+        
+            
+         int meses22=0;
+         System.out.println("Ingrese los meses de aguinaldo");
+         meses22 = reader.nextInt();
+         double salario2[];
+         double total1=0;
+         double total22= 0;
+         double aguinaldo2=0;
+         double promdiario2 = 0;
+                 if (meses22<6) {
+                     salario = new double [6];
+                     for (int i=0; i<salario.length;i++) {
+                     System.out.println("Ingrese su salario");
+                     salario[i] = reader.nextDouble();
+                     System.out.println("Esta cantidad de meses no aplican para la cesantia.");
+                     total22 += salario[i];
+                         if (i>salario.length - meses22) {
+                             total1 += salario[i];
+                         }
+                     }
+                 } else {
+                     salario = new double[meses22];
+                     for (int i=0; i<salario.length;i++) {
+                System.out.println("Ingrese el salario del mes #"+(i+1));
+                salario[i] = reader.nextDouble();
+                total1 += salario[i];
+                         if (i>salario.length - 6) {
+                             total22 += salario[i];
+                         }
+                 }
+                 }
+                 aguinaldo2 = total1/12;
+                 
+                 prommensual2 = total22/6;
+                 
+                 if (modalidad<=1) {
+                     promdiario2 =  prommensual2/30;
+                 }else {
+                     promdiario2 =  prommensual2/26;
+                 }
+                 
+                 
+        double aÃ±os2 = Math.round(meses22/12);
+        System.out.println("AÃ±os"+aÃ±os2);
+        double montoVacaciones2 = promdiario2 * diasVacaciones2;
+        double montoTotal2 = montoVacaciones2 + aguinaldo2;
+
+        double montoTotalAPagar2 = montoTotal2;
+        //Finalmente, el programa muestra el informe de liquidaciÃƒÂ³n del trabajador que incluye 
+        //todos los montos y detalles del cÃƒÂ¡lculo.
+        System.out.println("Informe de liquidacion de " + nombre2);
+        System.out.println("Cedula: " + cedula2);
+        System.out.println("Salario semanal: " + salarioSemanal2);
+        System.out.println("Salario mensual: " + salarioMensual2);
+        System.out.println("Salario proporcional: " + salarioProporcional2);
+        System.out.println("Monto correspondiente a vacaciones: " + montoVacaciones2);
+        System.out.println("Monto correspondiente a aguinaldo: " + aguinaldo2);
+        System.out.println("Monto total de las prestaciones laborales: " + montoTotal2);
+        System.out.println("Monto total de las prestaciones laborales (sin responsabilidad patronal): " + montoTotalAPagar2); 
+         break;
+
+         
+         }   Thread.sleep(3000);  
+  
+        }while(menu2!=3); 
+           break;
+         
+             case 2:
+             //La opcion '2' permite al usuario calcular el salario para un trabajador en función de las horas trabajadas
+        int  menu7 = 0;
+        
+        do{
+        System.out.println("Del 1 al 4 seleccione una opcion");
+        System.out.println("1:Diario");
+        System.out.println("2:semanal");
+        System.out.println("3:Mensual");
+        System.out.println("4:Salir");
+         menu7= reader.nextInt();
+         switch (menu7){
+             case 1:
+              Scanner reader5 = new Scanner(System.in);
+              //Se utiliza otro objeto Scanner para leer la entrada del usuario.
+              double salarioDiario5 = 0;
+              double salarioSemanal7 = 0;
+              double salarioMensual7 = 0;
+              int horasdobles4 = 0;
+              int horastriples4 = 0;
+              //Asignacion y almacenamiento de variables 
+
+               System.out.print("Ingrese el salario por hora: ");
+               double salarioHora3 = reader5.nextDouble();  
+               System.out.print("Ingrese las horas trabajadas: ");
+               int horasTrabajadas3 = reader5.nextInt();
+
+               // Mediante un condicional if-else se determina el salario diario y semanal del trabajador, según el número de horas trabajadas
+               if (horasTrabajadas3 <= 8) {
+               salarioDiario5 = salarioHora3 * horasTrabajadas3;
+               salarioSemanal7 = salarioDiario5 * 7;
+               salarioMensual7 = salarioDiario5 * 30;
+               //Si las horas trabajadas son menos o iguales a 8, entonces el salario diario se calcula multiplicando el salario por hora por las horas trabajadas.
+               }
+               else if (horasTrabajadas3 > 8 && horasTrabajadas3 <= 12) {
+            int horasExtras = horasTrabajadas3 - 8;
+            salarioDiario5 = salarioHora3 * 8 + (salarioHora3 * 2) * horasExtras;
+            salarioSemanal7 = salarioDiario5 * 7;
+            salarioMensual7 = salarioDiario5 * 30;
+            //Si las horas trabajadas están entre 8 y 12, entonces se calcula el salario diario sumando las horas normales
+            //Ademas las horas extras con un factor de multiplicación de 2. 
+        }
+          else {
+            int horasExtras = horasTrabajadas3 - 12;
+            salarioDiario5 = salarioHora3 * 8 + (salarioHora3 * 2) * 4 + (salarioHora3 * 3) * horasExtras;
+            salarioSemanal7 = salarioDiario5 * 7;
+            salarioMensual7 = salarioDiario5 * 30;
+            //Si las horas trabajadas son más de 12, entonces se calcula el salario diario sumando las horas con normalidad
+            //Las horas dobles con un factor de multiplicación de 2
+            //Las horas triples con un factor de multiplicación de 3.
+        }      
+           horastriples4 = horasTrabajadas3 - 12;
+           horasdobles4 = horasTrabajadas3 -(8)- horastriples4;
+           //Se almacenan las variables de horas docbles y triples
+          System.out.println("Salario diario: " + salarioDiario5 );
+           System.out.println("Horas dobles " + horasdobles4 );
+          System.out.println("Horas triples " + horastriples4 );
+          // Se imprimen los resultados
+          break;
+          
+             case 2:
+            Scanner reader4 = new Scanner(System.in); 
+            //La opcion '2' permite al usuario calcular su salario diario solicitando cantidad de horas trabajadas por dia y cuanto le pagan por hora
+            //Se utiliza otro objeto Scanner para leer la entrada del usuario.     
+              double salarioDiario1 = 0;
+              double salarioSemanal1 = 0;
+              double salarioMensual1 = 0;
+              int horasdobles1 = 0;
+              int horastriples1 = 0;
+              // Se asignan valores
+               System.out.print("Ingrese el salario por hora: ");
+               double salarioHora1 = reader4.nextDouble();  
+               System.out.print("Ingrese las horas trabajadas: ");
+               int horasTrabajadas1 = reader4.nextInt();
+
+               // Mediante un condicional if-else se determina el salario diario y semanal del trabajador, según el número de horas trabajadas
+               if (horasTrabajadas1 <= 8) {
+               salarioDiario1 = salarioHora1 * horasTrabajadas1;
+               salarioSemanal1 = salarioDiario1* 6;
+               //Si el trabajador ha trabajado menos de 8 horas, el salario diario y semanal se calculan multiplicando el salario por hora por el número de horas trabajadas y por 6 
+             
+               }
+               else if (horasTrabajadas1 > 8 && horasTrabajadas1 <= 12) {
+            int horasExtras = horasTrabajadas1 - 8;
+            salarioDiario1 = salarioHora1 * 8 + (salarioHora1 * 2) * horasExtras;
+            salarioSemanal1 = salarioDiario1 * 6;
+            //Si el trabajador ha trabajado entre 8 y 12 horas, el salario diario se calcula como 8 horas al salario por hora más horas extras a un salario por hora y medio. 
+        }
+          else {
+            int horasExtras1 = horasTrabajadas1 - 12;
+            salarioDiario1 = salarioHora1 * 8 + (salarioHora1 * 2) * 4 + (salarioHora1 * 3) * horasExtras1;
+            salarioSemanal1 = salarioDiario1 * 6;
+           //Si el trabajador ha trabajado más de 12 horas, el salario diario se calcula como 8 horas al salario por hora, 4 horas extras al salario por hora y media
+           // Horas extras restantes a un salario por hora y triple
+     
+        } 
+           horastriples1 =horasTrabajadas1 - 12;
+           horasdobles1 = horasTrabajadas1 -horastriples1-8 ;
+          System.out.println("Salario semanal : " + salarioSemanal1 );  
+            System.out.println("Horas dobles " + horasdobles1 );
+           System.out.println("Horas triples " + horastriples1 );    
+            // Se calcula el numero de horas dobles y triples y se imprime el salario semanal y las horas dobles y triples   
+             break;
+             case 3:
+         Scanner input3 = new Scanner(System.in);
+        //La opcion '3' permite al usuario calcular el aguinaldo de un trabajador 
+        //Se utiliza otro objeto Scanner para leer la entrada del usuario.
+        System.out.print("Ingrese el salario por hora: ");
+        double salarioHora2 = input3.nextDouble();
+
+        System.out.print("Ingrese las horas trabajadas: ");
+        int horasTrabajadas2 = input3.nextInt();
+        // Se asignan las variables
+        double salarioDiario2 = 0;
+        double salarioMensual2 = 0;
+        int horasdobles2 = 0;
+        int horastriples2 = 0;
+
+        if (horasTrabajadas2 <= 8) {
+            salarioDiario2 = salarioHora2 * horasTrabajadas2;
+            salarioSemanal7 = salarioDiario2 * 7;
+            salarioMensual2 = salarioDiario2 * 30;
+            // se comprueba si el trabajador ha trabajado 8 horas o menos. Si es así, se calcula su salario diario, semanal y mensual
+        } else if (horasTrabajadas2 > 8 && horasTrabajadas2 <= 12) {
+            int horasExtras = horasTrabajadas2 - 8;
+            salarioDiario2 = salarioHora2 * 8 + (salarioHora2 * 2) * horasExtras;
+            salarioMensual2 = salarioDiario2 * 30;
+            //se calcula su salario diario y mensual teniendo en cuenta las horas extras que ha trabajado.
+        } else {
+            int horasExtras = horasTrabajadas2 - 12;
+            salarioDiario2 = salarioHora2 * 8 + (salarioHora2 * 2) * 4 + (salarioHora2 * 3) * horasExtras;
+            salarioMensual2 = salarioDiario2 * 30;
+           
+        }
+           horastriples2 =horasTrabajadas2 - 12;
+           horasdobles2 = horasTrabajadas2 -(8)- horastriples2;
+
+           //se calcula su salario diario y mensual teniendo en cuenta las horas extras que ha trabajado, tanto las que equivalen a horas dobles como a horas triples.
+
+        System.out.println("Salario mensual: " + salarioMensual2);
+        System.out.println("Horas dobles " + horasdobles2 );
+        System.out.println("Horas triples " + horastriples2 );  
+             case 4:
+                 // Opcion salir
+                 System.out.println("Gracias por utilizar el programa");
+         }Thread.sleep(3000); 
+        }while (menu7!=4);    
+        break;
+        
+              case 3:
+
+        int meses;
+        System.out.println("Ingrese la cantidad de meses trabajados");
+        meses = reader.nextInt();
+        //Se utiliza otro objeto Reader para leer la entrada del usuario.
+        double salario[] = new double[meses];
+        double aguinaldo;
+        double total=0;
+        // Se asignan las variables que usaremos para el caclulo del aguinaldo
+        // Utiliza un bucle for solicitando al usuario que ingrese el salario del mes actual y que lo almacena
+        for (int i=0; i<salario.length;i++) {
+            System.out.println("Ingrese el salario del mes #"+(i+1));
+            salario[i] = reader.nextDouble();
+            total += salario[i];
+        }
+        aguinaldo = total/12;
+        // Se imprime el calculo del aguinaldo
+         System.out.println("Su aguinaldo es de:"+aguinaldo);
+           break;
+        
+              case 4:
+                 Scanner teclado = new Scanner(System.in);
+                 //La opcion '4' permite al usuario calcular el salario escolar de un trabajador del sector publico
+                 //Se utiliza otro objeto Scanner para leer la entrada del usuario.
+
+                    System.out.println("Bienvenido al calculo de salario escolar");
+                    // Se asignan variables para el calculo del salario escolar
+                    double diastrabajo;
+                    double salariohoras;
+                    double salariodiario1;
+                    double salariomensua1;
+                    double salarioanual1;
+                    double salarioescolar1;
+                   
+                    System.out.println("Ingrese la cantidad de horas trabajadas");
+                    salariohoras = teclado.nextDouble();
+                    System.out.println("Ingrese cuanto gana por hora");
+                    diastrabajo = teclado.nextDouble();
+                    // Se realizan los calculos del salario diario,mensual y anual
+                    salariodiario1 = salariohoras * diastrabajo; 
+                    salariomensua1 = salariodiario1 * 4; 
+                    salarioanual1 = salariomensua1 * 12;
+                    
+                    salarioescolar1 = salarioanual1 * 0.0833; 
+                    // Se imprime el resultado del salario escolar
+                    System.out.println("Su salario escolar es de:"+ salarioescolar1);
+                    break;
+                    
+              case 5:
+              Scanner scanner = new Scanner(System.in);
+                 //La opcion '5' permite al usuario calcular los dias de vacaciones de un empleado solicitando la fecha de ingreso y la fecha actual
+                 //Se utiliza otro objeto Scanner para leer la entrada del usuario.
+            System.out.println("Ingrese la fecha de ingreso del empleado (yyyy-mm-dd): ");
+            LocalDate fechaIngreso = LocalDate.parse(scanner.nextLine());
+            // Se le solicita la fecha de ingreso al trabajador 
+            System.out.println("Ingrese la fecha actual (yyyy-mm-dd): ");
+            LocalDate fechaActual = LocalDate.parse(scanner.nextLine());
+            // Se le solicita la fecha actual al trabajador
+            long mesesTrabajados = ChronoUnit.MONTHS.between(fechaIngreso, fechaActual);
+            
+            int diasLibres = (int) mesesTrabajados;
+            // Se tiene en cuenta que por cada mes se le da un dia libre
+            System.out.println("El empleado tiene " + diasLibres + " dÃ­as libres.");
+        
+        break;
+
+
+              case 6:
+                   //La opcion '6' permite al usuario salir del menu
+                  System.out.println("Gracias por utilizar el programa.");
+                  break;
+        }
+         //Utiliza un bucle while para repetir el codigo hasta que el menu no tenga valor igual a 6
+        }while (menu!=6);  
+        
+         
+         } 
+}       
