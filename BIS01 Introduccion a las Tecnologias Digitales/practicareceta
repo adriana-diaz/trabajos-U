@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title>Mi cocina</title>
+</head>
+<body>
+	<h1 style="color:#ff0000">---Gallo pinto Receta Familiar---</h1>
+    <img src="C:\Users\adria\Downloads\images.jfif" alt="" width="200">
+	<p>El gallo pinto es uno de los platos más populares de Costa Rica. Se trata de una mezcla de arroz y frijoles sazonados con cebolla, ajo y cilantro. Es un platillo que se sirve tradicionalmente para el desayuno, pero también se puede disfrutar en cualquier momento del día.</p>
+	<table class="tableizer-table">
+        <thead><tr class="tableizer-firstrow"><th>Ingredientes</th><th>Cantidad</th></tr></thead><tbody>
+         <tr><td>Arroz blanco</td><td>2 tazas</td></tr>
+         <tr><td>Frijoles negros cocinados</td><td>2 tazas</td></tr>
+         <tr><td>Cebolla blanca picada</td><td>1/2 taza</td></tr>
+         <tr><td>Cilantro picado</td><td>1/4 taza</td></tr>
+         <tr><td>Ajo picado</td><td>1 cucharaditas</td></tr>
+         <tr><td>Aceite vegetal</td><td>2 cucharaditas</td></tr>
+         <tr><td>Sal</td><td>al gusto</td></tr>
+        </tbody></table>
+	<h2>Preparación</h2>
+	<ol>
+		<li>Cocine el arroz y reserve.</li>
+		<li>En una sartén, caliente el aceite y agregue la cebolla, el ajo y el cilantro. Sofría hasta que la cebolla esté dorada.</li>
+		<li>Agregue los frijoles y revuelva bien.</li>
+		<li>Incorpore el arroz cocido y mezcle todo bien.</li>
+		<li>Agregue sal al gusto y sirva caliente.</li>
+	</ol>
+</body>
+</html>
