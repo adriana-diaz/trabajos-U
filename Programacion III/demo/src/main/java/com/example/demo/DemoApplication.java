@@ -2,15 +2,23 @@ package com.example.demo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
-        public class DemoApplication {
+        public class DemoApplication implements Escape {
 
 	public static void main(String[] args) {
         class Carro{
 		String marca;
 		String modelo;
 		String color;
+
+		public Carro(String marca, String modelo, String color) {
+			this.marca = marca;
+			this.modelo = modelo;
+			this.color = color;
+		}
 		public String getMarca() {return marca;}
+	
 	   }
+
         class Estudiantes {
 		String nombre;
 		String apellido;
