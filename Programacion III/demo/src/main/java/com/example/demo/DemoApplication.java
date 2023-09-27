@@ -7,32 +7,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DemoApplication {
 
 	public static void main(String[] args) {
-
-
-       class Carro{
-
-	   }
-
-       class Autobus{
+        class Carro{
 		String marca;
 		String modelo;
 		String color;
 		public String getMarca() {return marca;}
 	   }
-
-
-
-
-
-
-			class Estudiantes {
+        class Estudiantes {
 		String nombre;
 		String apellido;
 		String carnet;
 		private String saludar(){
-			return "Hola mi nombre es "+nombre+" y mi apellido es"+apellido+"" ;}
-	
-	}
+	        return "Hola mi nombre es "+nombre+" y mi apellido es"+apellido+"" ;}
+	   }
 		System.out.println("Acelerando");
 		Estudiantes estudiant1 = new Estudiantes();
 		estudiant1.nombre = "Estudiante #1";
