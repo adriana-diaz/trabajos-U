@@ -13,7 +13,7 @@ import jakarta.annotation.Generated;
 
 @Controller
 
-@RequestMapping("/intro")
+@RequestMapping("/intro") //http://localhost:8080/intro
 public class WebControler {
      @GetMapping()
 
