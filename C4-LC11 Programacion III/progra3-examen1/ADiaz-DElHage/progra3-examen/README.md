@@ -1,1 +1,0 @@
-# progra3-sem6
