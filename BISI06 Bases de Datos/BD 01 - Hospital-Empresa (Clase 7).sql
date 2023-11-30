@@ -29,25 +29,23 @@ CREATE TABLE Departamento
 	Localizacion			VARCHAR(50)		NULL,
 	CONSTRAINT PK_Departamento PRIMARY KEY(Num_Dpto)
 )
-GO
 CREATE TABLE Empleado
 (
-	ID_Empleado		INT			NOT NULL,
-	Apellido		VARCHAR(50)		NULL,
-	Oficio			VARCHAR(50)		NULL,
-	Cod_Jefe		INT			NULL,
-	Fecha_Ingreso	SMALLDATETIME		NULL,
-	Salario			NUMERIC(9,2)	NULL,
-	Comision		NUMERIC(9,2) 		NULL,
-	Num_Dpto		INT			NULL
-	CONSTRAINT PK_Empleado PRIMARY KEY(ID_Empleado),
-	CONSTRAINT FK_Empleado_Departamento FOREIGN KEY (Num_Dpto) REFERENCES Departamento(Num_Dpto)
-)
-GO
+    ID_Empleado     INT             NOT NULL,
+    Apellido        VARCHAR(50)     NULL,
+    Oficio          VARCHAR(50)     NULL,
+    Cod_Jefe        INT             NULL,
+    Fecha_Ingreso   DATE            NULL,
+    Salario         NUMERIC(9,2)    NULL,
+    Comision        NUMERIC(9,2)    NULL,
+    Num_Dpto        INT             NULL,
+    CONSTRAINT PK_Empleado PRIMARY KEY(ID_Empleado),
+    CONSTRAINT FK_Empleado_Departamento FOREIGN KEY (Num_Dpto) REFERENCES Departamento(Num_Dpto)
+);
+
 
 -- A2. INSERT EN TABLAS DATOS DE EMPLEADOS Y SUS DEPARTAMENTOS (MODELO DE UNA EMPRESA).
 
---Insertar datos en la table Departamento
 INSERT INTO Departamento(Num_Dpto,Dpto_Nombre,Localizacion) VALUES(10,'CONTABILIDAD','SEVILLA') 
 INSERT INTO Departamento(Num_Dpto,Dpto_Nombre,Localizacion) VALUES(20,'INVESTIGACIÓN','MADRID')
 INSERT INTO Departamento(Num_Dpto,Dpto_Nombre,Localizacion) VALUES(30,'VENTAS','BARCELONA')
@@ -100,28 +98,25 @@ CREATE TABLE Hospital
 	Cant_Camas		INT			NULL,
 	CONSTRAINT PK_Hospital PRIMARY KEY(Cod_Hospital)
 )
-GO
 CREATE TABLE Doctor
 (
-	Num_Doctor		INT			NOT NULL,
-	Cod_Hospital		INT			NOT NULL,
-	Apellido		VARCHAR(50)		NULL,
-	Especialidad		VARCHAR(50)		NULL
-	CONSTRAINT PK_Doctor PRIMARY KEY(Num_Doctor),
-	CONSTRAINT FK_Doctor_Hospital FOREIGN KEY (Cod_Hospital) REFERENCES Hospital(Cod_Hospital)
-)
-GO
+    Num_Doctor      INT             NOT NULL,
+    Cod_Hospital    INT             NOT NULL,
+    Apellido        VARCHAR(50)     NULL,
+    Especialidad    VARCHAR(50)     NULL,
+    CONSTRAINT PK_Doctor PRIMARY KEY(Num_Doctor),
+    CONSTRAINT FK_Doctor_Hospital FOREIGN KEY (Cod_Hospital) REFERENCES Hospital(Cod_Hospital)
+);
 
 CREATE TABLE Sala
 (
 	Cod_Sala		INT			NOT NULL,	
 	Cod_Hospital		INT			NOT NULL,
 	Nombre			VARCHAR(50)		NULL,
-	Cant_Camas		INT			NULL
+	Cant_Camas		INT			NULL,
 	CONSTRAINT PK_Sala PRIMARY KEY(Cod_Sala,Cod_Hospital),
 	CONSTRAINT FK_Sala_Hospital FOREIGN KEY (Cod_Hospital) REFERENCES Hospital(Cod_Hospital)
 )
-GO
 
 -- B2. INSERTAR DATOS DE HOSPITALES Y SUS RESPECTIVAS SALAS Y DOCTORES (MODELO DE HOSPITALES).
 
@@ -153,4 +148,3 @@ INSERT INTO SALA VALUES(4,45,'Cardiología',55)
 INSERT INTO SALA VALUES(6,19,'Psiquiátricos',67)
 INSERT INTO SALA VALUES(6,22,'Psiquiátricos',118) 
 GO
-
