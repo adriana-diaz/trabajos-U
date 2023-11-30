@@ -13,7 +13,6 @@ SELECT * FROM ESTUDIANTES WHERE APELLIDO LIKE "G%" OR APELLIDO LIKE "g%";
 /**¿Qué autores son de nacionalidad “USA” o “Francia”?**/
 SELECT * FROM AUTOR WHERE NACIONALIDAD = 'USA' OR NACIONALIDAD = 'Francia';  /** uso comillas porque es algo especifico**/
 
-
 /**¿Qué libros NO son del Área de “Internet”?**/
 SELECT * FROM LIBRO WHERE AREA <> 'Internet';
 
