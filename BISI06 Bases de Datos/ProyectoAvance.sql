@@ -44,4 +44,11 @@ CREATE TABLE Producto (
     CONSTRAINT FK_Producto_Promociones FOREIGN KEY (IDPromociones) REFERENCES Promociones(IDPromociones)
 );
 
-
+/**TABLAS NO revisadas**/
+CREATE TABLE Estado (
+    IDEstado INT,
+    Nombre VARCHAR(50),
+    Descripcion VARCHAR(100) NOT NULL,
+	ID_Codigo_Factura INT,
+    CONSTRAINT PK_Estado PRIMARY KEY(IDCategoria)
+);
