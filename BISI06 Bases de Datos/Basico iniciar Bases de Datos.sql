@@ -16,7 +16,7 @@ Alter authorization on database::Semana6_Adriana to sa
  
 
 
-/*Establece el formato de la fecha en dia/mes/aÒo, 
+/*Establece el formato de la fecha en dia/mes/a√±o, 
 cualquiera de las dos*/
 SET DATEFORMAT dmy
 SET LANGUAGE spanish
@@ -25,5 +25,5 @@ SET LANGUAGE spanish
 
 
 /*Instruccion que indica que la proxima consulta 
-se ejecutar· hasta que termine de ejecutarse la sentencia anterior*/
+se ejecutar√° hasta que termine de ejecutarse la sentencia anterior*/
 GO 
