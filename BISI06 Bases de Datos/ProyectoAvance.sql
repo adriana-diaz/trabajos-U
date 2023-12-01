@@ -67,6 +67,7 @@ CREATE TABLE MetododePago (
     IDMetododePago INT,
     TipoMetododePago VARCHAR(50),
     DescripcionMetododePago VARCHAR(100) NOT NULL,
+    MontoVendido INT NOT NULL,
 	ID_Codigo_Factura INT,
     CONSTRAINT PK_IDMetododePago PRIMARY KEY(IDMetododePago)
 );
@@ -86,11 +87,12 @@ CREATE TABLE Factura (
     Cantidad INT,
     IDClientes INT,
     NombreClientes VARCHAR(100) NULL,
+    MontoVendido INT,
     IDEstado INT,
     IDMetododePago INT,
     IDEmpleado INT,
     CONSTRAINT FK_Factura_Estado FOREIGN KEY (IDEstado) REFERENCES Estado(IDEstado),
-    CONSTRAINT FK_Factura_MetododePago FOREIGN KEY (IDMetododePago) REFERENCES MetododePago(IDMetododePago),
+    CONSTRAINT FK_Factura_MetododePago FOREIGN KEY (IDMetododePago, MontoVendido) REFERENCES MetododePago(IDMetododePago, MontoVendido),
     CONSTRAINT FK_Factura_Clientes FOREIGN KEY (IDClientes, NombreClientes) REFERENCES Clientes(IDClientes, NombreClientes),
     CONSTRAINT FK_Factura_Empleado FOREIGN KEY (IDEmpleado) REFERENCES Empleado(IDEmpleado)
 );
