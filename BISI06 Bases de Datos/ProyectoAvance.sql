@@ -60,18 +60,8 @@ CREATE TABLE Clientes (
     NumeroDeTelefonoClientes VARCHAR(50),
     CorreoElectronicoClientes VARCHAR(50),
     ID_Codigo_Factura INT,
-    CONSTRAINT PK_IDClientes PRIMARY KEY(IDClientes,NombreClientes)
+    CONSTRAINT PK_IDClientes PRIMARY KEY(IDClientes)
 );
-
-CREATE TABLE MetododePago (
-    IDMetododePago INT,
-    TipoMetododePago VARCHAR(50),
-    DescripcionMetododePago VARCHAR(100) NOT NULL,
-    MontoVendido INT NOT NULL,
-	ID_Codigo_Factura INT,
-    CONSTRAINT PK_IDMetododePago PRIMARY KEY(IDMetododePago)
-);
-
 CREATE TABLE Empleado (
     IDEmpleado INT,
     NombreEmpleado VARCHAR(50),
@@ -79,22 +69,34 @@ CREATE TABLE Empleado (
 	ID_Codigo_Factura INT,
     CONSTRAINT PK_IDEmpleado PRIMARY KEY(IDEmpleado)
 );
-/**TABLAS NO revisadas**/
+
+
+CREATE TABLE MetododePago (
+    IDMetododePago INT,
+    TipoMetododePago VARCHAR(50),
+    DescripcionMetododePago VARCHAR(100) NOT NULL,
+    MontoVendido INT NOT NULL,
+    ID_Codigo_Factura INT,
+    CONSTRAINT PK_IDMetododePago PRIMARY KEY(IDMetododePago),
+    CONSTRAINT UQ_MetododePago_MontoVendido UNIQUE (MontoVendido)
+);
+
 CREATE TABLE Factura (
-    FacturaID INT PRIMARY KEY,
+    IDFactura INT PRIMARY KEY,
     Fecha_de_Pedido_Factura DATETIME NOT NULL,
-    Detalle VARCHAR(100) NULL,
-    Cantidad INT,
+    DetalleFactura VARCHAR(100) NULL,
+    CantidadFactura INT,
     IDClientes INT,
-    NombreClientes VARCHAR(100) NULL,
     MontoVendido INT,
     IDEstado INT,
     IDMetododePago INT,
     IDEmpleado INT,
     CONSTRAINT FK_Factura_Estado FOREIGN KEY (IDEstado) REFERENCES Estado(IDEstado),
-    CONSTRAINT FK_Factura_MetododePago FOREIGN KEY (IDMetododePago, MontoVendido) REFERENCES MetododePago(IDMetododePago, MontoVendido),
-    CONSTRAINT FK_Factura_Clientes FOREIGN KEY (IDClientes, NombreClientes) REFERENCES Clientes(IDClientes, NombreClientes),
-    CONSTRAINT FK_Factura_Empleado FOREIGN KEY (IDEmpleado) REFERENCES Empleado(IDEmpleado)
+    CONSTRAINT FK_Factura_MetododePago FOREIGN KEY (IDMetododePago) REFERENCES MetododePago(IDMetododePago),
+    CONSTRAINT FK_Factura_Clientes FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes),
+    CONSTRAINT FK_Factura_Empleado FOREIGN KEY (IDEmpleado) REFERENCES Empleado(IDEmpleado),
+    CONSTRAINT FK_Factura_MontoVendido FOREIGN KEY (MontoVendido) REFERENCES MetododePago(MontoVendido)
 );
 
-DROP TABLE Clientes;
+/**TABLAS NO revisadas**/
+DROP DATABASE INVENTARIO_ELECTROTIENDA;
