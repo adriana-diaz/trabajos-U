@@ -13,6 +13,14 @@ CREATE TABLE Categoria (
 	ID_Codigo_Producto INT,
     CONSTRAINT PK_Categoria PRIMARY KEY(IDCategoria)
 );
+/**Insertar info en tabla categoria**/
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(1,'PANTALLAS','PANTALLAS DE TODOS LOS TIPOS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(2,'CELULARES','CELULARES NUEVOS Y USADOS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(3,'COMPUTADORAS','COMPUTADORAS NUEVOS Y USADOS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(4,'ELECTRONICOS','ELECTRONICOS PARA CADA DISPOSITIVO') ;
+/**SELECTS CATEGORIA**/
+SELECT * FROM Categoria;
+
 CREATE TABLE Proveedor (
     IDProveedor INT,
     NombreProveedor VARCHAR(50),
