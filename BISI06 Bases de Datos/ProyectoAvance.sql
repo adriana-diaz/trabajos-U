@@ -179,12 +179,11 @@ CREATE TABLE Factura (
     CONSTRAINT FK_Factura_Empleado FOREIGN KEY (IDEmpleado) REFERENCES Empleado(IDEmpleado),
     CONSTRAINT FK_Factura_MontoVendido FOREIGN KEY (MontoVendido) REFERENCES MetododePago(MontoVendido)
 );
-
-/**Insertar info en tabla MetododePago**/
-INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(1,'Efectivo','Completo','1');
-INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(2,'Tarjeta','Completo','8');
-INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(3,'Simpe Movil','Completo','9');
-INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(4,'Efectivo','Completo','6');
+/**Insertar info en tabla Factura**/
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(1,'2023-01-30','SE REALIZO UNA FACTURA DE LAPTOP HP','1');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(2,'2023-08-20','SE REALIZO UNA FACTURA DE UN TECLADO Y MOUSE','2');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(3,'2023-01-10','SE REALIZO UNA FACTURA DE IPHONE 15','1');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(4,'2023-05-20','SE REALIZO UNA FACTURA DE MONITOR','3');
 
 /**SELECTS Factura**/
 SELECT * FROM Factura;
@@ -198,8 +197,12 @@ CREATE TABLE Pedido (
     CONSTRAINT FK_Pedido_Producto FOREIGN KEY (ID_Codigo_Producto) REFERENCES Producto(ID_Codigo_Producto),
     CONSTRAINT FK_Pedido_Factura FOREIGN KEY (IDFactura) REFERENCES Factura(IDFactura)
 );
-
-/**TABLAS NO revisadas**/
-
+/**Insertar info en tabla Pedido**/
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(1,'2023-01-30','1');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(2,'2023-08-20','2');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(3,'2023-01-10','1');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(4,'2023-05-20','3');
+/**SELECTS Pedido**/
+SELECT * FROM Pedido;
 
 DROP DATABASE INVENTARIO_ELECTROTIENDA;
