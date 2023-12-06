@@ -25,10 +25,18 @@ CREATE TABLE Proveedor (
     IDProveedor INT,
     NombreProveedor VARCHAR(50),
     DireccionProveedor VARCHAR(100) NOT NULL,
-    NumeroDeTelefonoProveedor VARCHAR(50),
+    NumeroDeTelefonoProveedor VARCHAR(8),
     ID_Codigo_Producto INT,
     CONSTRAINT PK_Proveedor PRIMARY KEY(IDProveedor)
 );
+/**Insertar info en tabla Proveedor**/
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(1,'APPLE','COSTA RICA','89785634');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(2,'SAMSUNG','COSTA RICA','12569818');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(3,'XIAOMI','COSTA RICA','09785634');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(4,'HUAWEI','COSTA RICA','98562356');
+/**SELECTS Proveedor**/
+SELECT * FROM Proveedor;
+
 CREATE TABLE Promociones (
     IDPromociones INT,
     DescuentoPromociones VARCHAR(50),
@@ -37,13 +45,21 @@ CREATE TABLE Promociones (
     ID_Codigo_Producto INT,
     CONSTRAINT PK_Promociones PRIMARY KEY(IDPromociones)
 );
+/**Insertar info en tabla Promociones**/
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(1,'50% DE DESCUENTO','2023-01-20','2024-01-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(2,'20% DE DESCUENTO','2023-02-20','2024-02-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(3,'70% DE DESCUENTO','2023-03-20','2024-03-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(4,'10% DE DESCUENTO','2023-04-20','2024-04-20');
+
+/**SELECTS Promociones**/
+SELECT * FROM Promociones;
 
 CREATE TABLE Producto (
     ID_Codigo_Producto INT PRIMARY KEY,
     NombreProducto VARCHAR(50),
     DescripcionProducto VARCHAR(100) NOT NULL,
-    PrecioProducto INT NOT NULL,
     Cantidad_en_stock_Producto INT NOT NULL,
+    Costo DECIMAL(10, 2) NOT NULL,
     IDCategoria INT,
     IDProveedor INT,
     IDPromociones INT,
@@ -51,6 +67,30 @@ CREATE TABLE Producto (
     CONSTRAINT FK_Producto_Proveedor FOREIGN KEY (IDProveedor) REFERENCES Proveedor(IDProveedor),
     CONSTRAINT FK_Producto_Promociones FOREIGN KEY (IDPromociones) REFERENCES Promociones(IDPromociones)
 );
+/**Insertar info en tabla Producto**/
+INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(1,'IPHONE 15','ESTADO NUEVO','1000000','16');
+INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(2,'HP LAPTOP','ESTADO NUEVO','2300000','90');
+INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(3,'TV SAMSUNG','ESTADO NUEVO','890000','53');
+INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(4,'CABLE TIPO C','ESTADO NUEVO','4450000','75');
+
+/**SELECTS Producto**/
+SELECT * FROM Producto;
+
+/** Mostar para cada categoría el costo total de los productos asociados, el promedio, el
+mínimo y el máximo. Mostrar el código de la categoría y los montos solicitados.**/
+SELECT
+    c.ID_Codigo_Producto AS Codigo_Categoria,
+    c.NombreCategoria AS Categoria,
+    SUM(p.Costo) AS CostoTotal,
+    AVG(p.Costo) AS PromedioCosto,
+    MIN(p.Costo) AS MinimoCosto,
+    MAX(p.Costo) AS MaximoCosto
+FROM
+    Categoria c
+JOIN
+    Producto p ON c.ID_Codigo_Producto = p.ID_Codigo_Producto
+GROUP BY
+    c.ID_Codigo_Producto, c.NombreCategoria;
 
 CREATE TABLE Estado (
     IDEstado INT,
@@ -59,6 +99,15 @@ CREATE TABLE Estado (
 	ID_Codigo_Factura INT,
     CONSTRAINT PK_Estado PRIMARY KEY(IDEstado)
 );
+/**Insertar info en tabla Estado**/
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(1,'NUEVO','Comprado recientemente');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(2,'NUEVO','Comprado hace un mes');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(3,'NUEVO','Comprado recientemente');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(4,'NUEVO','Comprado hace un mes');
+
+/**SELECTS Estado**/
+SELECT * FROM Estado;
+
 
 CREATE TABLE Clientes (
     IDClientes INT,
@@ -70,6 +119,16 @@ CREATE TABLE Clientes (
     ID_Codigo_Factura INT,
     CONSTRAINT PK_IDClientes PRIMARY KEY(IDClientes)
 );
+/**Insertar info en tabla Clientes**/
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(1,'Adriana','Diaz','Heredia','89785634','adriana@gmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(2,'Maria','Martinez','San Jose','89098765','mariam@gmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(3,'Jose','Blanco','Cartago','23674356','joseb@hotmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(4,'Laura','Vargas','Puntarenas','12894356','lauravargas@hotmail.com');
+
+/**SELECTS Clientes**/
+SELECT * FROM Clientes;
+
+
 CREATE TABLE Empleado (
     IDEmpleado INT,
     NombreEmpleado VARCHAR(50),
@@ -77,7 +136,14 @@ CREATE TABLE Empleado (
 	ID_Codigo_Factura INT,
     CONSTRAINT PK_IDEmpleado PRIMARY KEY(IDEmpleado)
 );
+/**Insertar info en tabla Empleado**/
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(001,'Rodolfo','Diaz');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(200,'Pedro','Sanchez');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(089,'Jose','Murillo');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(003,'Raul','Cajina');
 
+/**SELECTS Empleado**/
+SELECT * FROM Empleado;
 
 CREATE TABLE MetododePago (
     IDMetododePago INT,
@@ -88,6 +154,14 @@ CREATE TABLE MetododePago (
     CONSTRAINT PK_IDMetododePago PRIMARY KEY(IDMetododePago),
     CONSTRAINT UQ_MetododePago_MontoVendido UNIQUE (MontoVendido)
 );
+/**Insertar info en tabla MetododePago**/
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(1,'Efectivo','Completo','1500');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(2,'Tarjeta','Completo','20000');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(3,'Simpe Movil','Completo','9000');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(4,'Efectivo','Completo','6000');
+
+/**SELECTS MetododePago**/
+SELECT * FROM MetododePago;
 
 CREATE TABLE Factura (
     IDFactura INT PRIMARY KEY,
@@ -106,5 +180,26 @@ CREATE TABLE Factura (
     CONSTRAINT FK_Factura_MontoVendido FOREIGN KEY (MontoVendido) REFERENCES MetododePago(MontoVendido)
 );
 
+/**Insertar info en tabla MetododePago**/
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(1,'Efectivo','Completo','1');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(2,'Tarjeta','Completo','8');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(3,'Simpe Movil','Completo','9');
+INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFactura) VALUES(4,'Efectivo','Completo','6');
+
+/**SELECTS Factura**/
+SELECT * FROM Factura;
+
+CREATE TABLE Pedido (
+    IDPedido INT PRIMARY KEY,
+    Fecha_de_Pedido DATETIME NOT NULL,
+    Cantidad INT,
+    ID_Codigo_Producto INT,
+    IDFactura INT,
+    CONSTRAINT FK_Pedido_Producto FOREIGN KEY (ID_Codigo_Producto) REFERENCES Producto(ID_Codigo_Producto),
+    CONSTRAINT FK_Pedido_Factura FOREIGN KEY (IDFactura) REFERENCES Factura(IDFactura)
+);
+
 /**TABLAS NO revisadas**/
+
+
 DROP DATABASE INVENTARIO_ELECTROTIENDA;
