@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS INVENTARIO_ELECTROTIENDA;
 USE INVENTARIO_ELECTROTIENDA;
 
 
-/**TABLAS**/
+/**TABLAS revisadas**/
 CREATE TABLE Categoria (
     IDCategoria INT,
     NombreCategoria VARCHAR(50),
@@ -53,6 +53,11 @@ INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promo
 
 /**SELECTS Promociones**/
 SELECT * FROM Promociones;
+/**SELECTS FECHAS INICIO Factura**/
+SELECT * FROM Promociones where Fecha_de_inicio_Promociones between '2014-05-05' and '2023-05-06';
+/**SELECTS FECHAS FINALIZACION Factura**/
+SELECT * FROM Promociones where Fecha_de_finalizacion_Promociones between '2014-05-05' and '2024-05-06';
+
 
 CREATE TABLE Producto (
     ID_Codigo_Producto INT PRIMARY KEY,
@@ -187,6 +192,8 @@ INSERT INTO Factura(IDFactura,Fecha_de_Pedido_Factura,DetalleFactura,CantidadFac
 
 /**SELECTS Factura**/
 SELECT * FROM Factura;
+/**SELECTS FECHAS Factura**/
+SELECT * FROM Factura where Fecha_de_Pedido_Factura between '2014-05-05' and '2023-05-06';
 
 CREATE TABLE Pedido (
     IDPedido INT PRIMARY KEY,
@@ -199,10 +206,12 @@ CREATE TABLE Pedido (
 );
 /**Insertar info en tabla Pedido**/
 INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(1,'2023-01-30','1');
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(2,'2023-08-20','2');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(2,'2022-08-20','2');
 INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(3,'2023-01-10','1');
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(4,'2023-05-20','3');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(4,'2024-05-20','3');
 /**SELECTS Pedido**/
 SELECT * FROM Pedido;
+/**SELECTS FECHAS Pedido**/
+SELECT * FROM Pedido where Fecha_de_Pedido between '2014-05-05' and '2023-05-06';
 
 DROP DATABASE INVENTARIO_ELECTROTIENDA;
