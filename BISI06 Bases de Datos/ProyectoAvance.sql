@@ -5,10 +5,10 @@ CREATE DATABASE IF NOT EXISTS INVENTARIO_ELECTROTIENDA;
 USE INVENTARIO_ELECTROTIENDA;
 
 
-/**TABLAS revisadas**/
+/**TABLAS **/
 CREATE TABLE Categoria (
-    IDCategoria INT,
-    NombreCategoria VARCHAR(50),
+    IDCategoria INT NOT NULL,
+    NombreCategoria VARCHAR(50)NOT NULL,
     DescripcionCategoria VARCHAR(100) NOT NULL,
 	ID_Codigo_Producto INT,
     CONSTRAINT PK_Categoria PRIMARY KEY(IDCategoria)
@@ -18,14 +18,22 @@ INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(1
 INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(2,'CELULARES','CELULARES NUEVOS Y USADOS');
 INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(3,'COMPUTADORAS','COMPUTADORAS NUEVOS Y USADOS');
 INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(4,'ELECTRONICOS','ELECTRONICOS PARA CADA DISPOSITIVO') ;
+
 /**SELECTS CATEGORIA**/
 SELECT * FROM Categoria;
 
+SELECT * FROM Producto
+RIGHT JOIN Categoria ON Producto.ID_Codigo_Producto = Categoria.ID_Codigo_Producto
+UNION
+SELECT * FROM Producto
+LEFT JOIN Categoria ON Producto.ID_Codigo_Producto = Categoria.ID_Codigo_Producto;
+
+
 CREATE TABLE Proveedor (
-    IDProveedor INT,
-    NombreProveedor VARCHAR(50),
+    IDProveedor INT NOT NULL,
+    NombreProveedor VARCHAR(50) NOT NULL,
     DireccionProveedor VARCHAR(100) NOT NULL,
-    NumeroDeTelefonoProveedor VARCHAR(8),
+    NumeroDeTelefonoProveedor VARCHAR(8) NOT NULL,
     ID_Codigo_Producto INT,
     CONSTRAINT PK_Proveedor PRIMARY KEY(IDProveedor)
 );
@@ -38,8 +46,8 @@ INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTel
 SELECT * FROM Proveedor;
 
 CREATE TABLE Promociones (
-    IDPromociones INT,
-    DescuentoPromociones VARCHAR(50),
+    IDPromociones INT NOT NULL,
+    DescuentoPromociones VARCHAR(50) NOT NULL,
     Fecha_de_inicio_Promociones datetime NOT NULL,
     Fecha_de_finalizacion_Promociones datetime NOT NULL,
     ID_Codigo_Producto INT,
@@ -57,7 +65,6 @@ SELECT * FROM Promociones;
 SELECT * FROM Promociones where Fecha_de_inicio_Promociones between '2014-05-05' and '2023-05-06';
 /**SELECTS FECHAS FINALIZACION Factura**/
 SELECT * FROM Promociones where Fecha_de_finalizacion_Promociones between '2014-05-05' and '2024-05-06';
-
 
 CREATE TABLE Producto (
     ID_Codigo_Producto INT PRIMARY KEY,
@@ -77,25 +84,32 @@ INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo
 INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(2,'HP LAPTOP','ESTADO NUEVO','2300000','90');
 INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(3,'TV SAMSUNG','ESTADO NUEVO','890000','53');
 INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto) VALUES(4,'CABLE TIPO C','ESTADO NUEVO','4450000','75');
+-- No TOCAR ES EL UNICO QUE SIRVE
+SELECT *FROM Promociones
+INNER JOIN Producto ON Promociones.IDPromociones = Producto.ID_Codigo_Producto;
 
-/**SELECTS Producto**/
-SELECT * FROM Producto;
+-- PRUEBAS
+
+-- Verificar coincidencias en IDProveedor en Producto y Proveedor
+SELECT * FROM Producto
+RIGHT JOIN Proveedor ON Producto.IDProveedor = Proveedor.IDProveedor;
+
+-- Verificar coincidencias en ID_Codigo_Producto en Producto y Categoria
+SELECT * FROM Producto
+RIGHT JOIN Categoria ON Producto.ID_Codigo_Producto = Categoria.ID_Codigo_Producto;
 
 /** Mostar para cada categoría el costo total de los productos asociados, el promedio, el
 mínimo y el máximo. Mostrar el código de la categoría y los montos solicitados.**/
 SELECT
-    c.ID_Codigo_Producto AS Codigo_Categoria,
+    c.IDCategoria AS Codigo_Categoria,
     c.NombreCategoria AS Categoria,
     SUM(p.Costo) AS CostoTotal,
     AVG(p.Costo) AS PromedioCosto,
     MIN(p.Costo) AS MinimoCosto,
     MAX(p.Costo) AS MaximoCosto
-FROM
-    Categoria c
-JOIN
-    Producto p ON c.ID_Codigo_Producto = p.ID_Codigo_Producto
-GROUP BY
-    c.ID_Codigo_Producto, c.NombreCategoria;
+FROM Producto p
+INNER JOIN Categoria c ON p.IDCategoria = c.IDCategoria
+GROUP BY c.IDCategoria, c.NombreCategoria;
 
 CREATE TABLE Estado (
     IDEstado INT,
@@ -156,17 +170,21 @@ CREATE TABLE MetododePago (
     DescripcionMetododePago VARCHAR(100) NOT NULL,
     MontoVendido INT NOT NULL,
     ID_Codigo_Factura INT,
+	FechaMetododePago datetime NOT NULL,
     CONSTRAINT PK_IDMetododePago PRIMARY KEY(IDMetododePago),
     CONSTRAINT UQ_MetododePago_MontoVendido UNIQUE (MontoVendido)
 );
 /**Insertar info en tabla MetododePago**/
-INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(1,'Efectivo','Completo','1500');
-INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(2,'Tarjeta','Completo','20000');
-INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(3,'Simpe Movil','Completo','9000');
-INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido) VALUES(4,'Efectivo','Completo','6000');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido,FechaMetododePago) VALUES(1,'Efectivo','Completo','1500','2023-02-28');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido,FechaMetododePago) VALUES(2,'Tarjeta','Completo','20000','2022-09-30');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido,FechaMetododePago) VALUES(3,'Simpe Movil','Completo','9000','2023-04-30');
+INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,MontoVendido,FechaMetododePago) VALUES(4,'Efectivo','Completo','6000','2023-01-12');
 
 /**SELECTS MetododePago**/
 SELECT * FROM MetododePago;
+/**SELECTS FECHAS Factura**/
+SELECT * FROM MetododePago where FechaMetododePago between '2014-05-05' and '2023-05-06';
+
 
 CREATE TABLE Factura (
     IDFactura INT PRIMARY KEY,
@@ -215,3 +233,4 @@ SELECT * FROM Pedido;
 SELECT * FROM Pedido where Fecha_de_Pedido between '2014-05-05' and '2023-05-06';
 
 DROP DATABASE INVENTARIO_ELECTROTIENDA;
+
