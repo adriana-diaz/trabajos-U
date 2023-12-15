@@ -183,16 +183,16 @@ PRINT 'INFORMACION INSERTADA DE METODODEPAGO'
 
 INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(1,'2023-11-30','SE REALIZO UNA FACTURA DE LAPTOP HP',1,1,1500,1,1,001);
 INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(2,'2023-11-30','SE REALIZO UNA FACTURA DE UN TECLADO Y MOUSE',2,2,20000,2,2,200);
-INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(3,'2023-11-10','SE REALIZO UNA FACTURA DE IPHONE 15','1',3,9000,3,3,089);
-INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(4,'2023-12-01','SE REALIZO UNA FACTURA DE MONITOR','3',4,6000,4,4,003);
-INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(5,'2023-12-01','SE REALIZO UNA FACTURA DE IPHONE 15','1',3,12000,3,1,001);
+INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(3,'2023-11-10','SE REALIZO UNA FACTURA DE IPHONE 15',1,3,9000,3,3,089);
+INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(4,'2023-12-01','SE REALIZO UNA FACTURA DE MONITOR',3,4,6000,4,4,003);
+INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(5,'2023-12-01','SE REALIZO UNA FACTURA DE IPHONE 15',1,3,12000,3,1,001);
 INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(6,'2023-12-05','SE REALIZO UNA FACTURA DE UN TECLADO Y MOUSE',1,3,20000,3,1,001);
 PRINT 'INFORMACION INSERTADA DE FACTURA'
 
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(1,'2023-01-30','1','1','1')
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(2,'2022-08-20','2','2','2');
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(3,'2023-01-10','1','2','3');
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(4,'2024-05-20','3','3','4');
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(1,'2023-01-30',1,1,1)
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(2,'2022-08-20',2,2,2);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(3,'2023-01-10',1,3,3);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(4,'2024-05-20',3,4,4);
 PRINT 'INFORMACION INSERTADA DE PEDIDO'
 
 
@@ -258,7 +258,7 @@ FROM
     JOIN Factura F ON PD.ID_Codigo_Factura = F.ID_Codigo_Factura
     JOIN Producto P ON PD.ID_Codigo_Producto = P.ID_Codigo_Producto
 WHERE
-    F.ID_Codigo_Factura = '22222222';
+    F.ID_Codigo_Factura = '2';
 
 PRINT 'CONSULTA 2 / Listar todos los productos de una factura en específico'
 ---------------------------------------------------------------------------------
