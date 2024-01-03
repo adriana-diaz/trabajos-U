@@ -17,7 +17,6 @@ CREATE TABLE Proveedor (
     NombreProveedor VARCHAR(50) NOT NULL,
     DireccionProveedor VARCHAR(100) NOT NULL,
     NumeroDeTelefonoProveedor VARCHAR(8) NOT NULL,
-    ID_Codigo_Producto INT,
     CONSTRAINT PK_Proveedor PRIMARY KEY(IDProveedor)
 );
 GO 
@@ -27,7 +26,6 @@ CREATE TABLE Promociones (
     DescuentoPromociones VARCHAR(50) NOT NULL,
     Fecha_de_inicio_Promociones datetime NOT NULL,
     Fecha_de_finalizacion_Promociones datetime NOT NULL,
-    ID_Codigo_Producto INT,
     CONSTRAINT PK_Promociones PRIMARY KEY(IDPromociones)
 )
 GO
@@ -37,7 +35,6 @@ CREATE TABLE Categoria (
     IDCategoria INT NOT NULL,
     NombreCategoria VARCHAR(50)NOT NULL,
     DescripcionCategoria VARCHAR(100) NOT NULL,
-	ID_Codigo_Producto INT,
     CONSTRAINT PK_Categoria PRIMARY KEY(IDCategoria)
 )
 GO
@@ -63,7 +60,6 @@ CREATE TABLE Estado (
     IDEstado INT,
     NombreEstado VARCHAR(50),
     DescripcionEstado VARCHAR(100) NOT NULL,
-	ID_Codigo_Factura INT,
     CONSTRAINT PK_Estado PRIMARY KEY(IDEstado)
 )
 GO
@@ -76,7 +72,6 @@ CREATE TABLE Clientes (
     DireccionClientes VARCHAR(100) NOT NULL,
     NumeroDeTelefonoClientes VARCHAR(50),
     CorreoElectronicoClientes VARCHAR(50),
-    ID_Codigo_Factura INT,
     CONSTRAINT PK_IDClientes PRIMARY KEY(IDClientes)
 )
 GO
@@ -86,7 +81,6 @@ CREATE TABLE Empleado (
     IDEmpleado INT,
     NombreEmpleado VARCHAR(50),
     ApellidoEmpleado VARCHAR(50),
-	ID_Codigo_Factura INT,
     CONSTRAINT PK_IDEmpleado PRIMARY KEY(IDEmpleado)
 )
 GO
@@ -124,30 +118,28 @@ CREATE TABLE Pedido (
     IDPedido INT PRIMARY KEY,
     Fecha_de_Pedido DATETIME NOT NULL,
     Cantidad INT,
-    ID_Codigo_Producto INT,
-    ID_Codigo_Factura INT,
-    CONSTRAINT FK_Pedido_Producto FOREIGN KEY (ID_Codigo_Producto) REFERENCES Producto(ID_Codigo_Producto),
-    CONSTRAINT FK_Pedido_Factura FOREIGN KEY (ID_Codigo_Factura) REFERENCES Factura(ID_Codigo_Factura)
+    CONSTRAINT FK_Pedido_Producto FOREIGN KEY (IDPedido) REFERENCES Producto(ID_Codigo_Producto),
+    CONSTRAINT FK_Pedido_Factura FOREIGN KEY (IDPedido) REFERENCES Factura(ID_Codigo_Factura)
 )
 GO
 PRINT 'TABLA Pedido CREADA'
 
-INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor,ID_Codigo_Producto) VALUES(1,'APPLE','COSTA RICA','89785634',1);
-INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor,ID_Codigo_Producto) VALUES(2,'SAMSUNG','COSTA RICA','12569818',2);
-INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor,ID_Codigo_Producto) VALUES(3,'XIAOMI','COSTA RICA','09785634',3);
-INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor,ID_Codigo_Producto) VALUES(4,'HUAWEI','COSTA RICA','98562356',4);
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(1,'APPLE','COSTA RICA','89785634');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(2,'SAMSUNG','COSTA RICA','12569818');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(3,'XIAOMI','COSTA RICA','09785634');
+INSERT INTO Proveedor(IDProveedor,NombreProveedor,DireccionProveedor,NumeroDeTelefonoProveedor) VALUES(4,'HUAWEI','COSTA RICA','98562356');
 PRINT 'INFORMACION INSERTADA DE PROVEEDOR'
 
-INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones,ID_Codigo_Producto) VALUES(1,'50% DE DESCUENTO','2013-01-20','2024-01-20',1);
-INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones,ID_Codigo_Producto) VALUES(2,'20% DE DESCUENTO','2023-02-20','2024-02-20',2);
-INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones,ID_Codigo_Producto) VALUES(3,'70% DE DESCUENTO','2023-03-20','2024-03-20',3);
-INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones,ID_Codigo_Producto) VALUES(4,'10% DE DESCUENTO','2023-04-20','2024-04-20',4);
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(1,'50% DE DESCUENTO','2013-01-20','2024-01-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(2,'20% DE DESCUENTO','2023-02-20','2024-02-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(3,'70% DE DESCUENTO','2023-03-20','2024-03-20');
+INSERT INTO Promociones(IDPromociones,DescuentoPromociones,Fecha_de_inicio_Promociones,Fecha_de_finalizacion_Promociones) VALUES(4,'10% DE DESCUENTO','2023-04-20','2024-04-20');
 PRINT 'INFORMACION INSERTADA DE PROMOCIONES'
 
-INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria,ID_Codigo_Producto) VALUES(1,'CELULARES','CELULARES NUEVOS Y USADOS',1);
-INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria,ID_Codigo_Producto) VALUES(2,'COMPUTADORAS','COMPUTADORAS NUEVAS Y USADAS',2);
-INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria,ID_Codigo_Producto) VALUES(3,'TELEVISORES','PANTALLAS NUEVAS Y USADAS',3);
-INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria,ID_Codigo_Producto) VALUES(4,'CABLES','CABLES PARA CADA DISPOSITIVO',4) ;
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(1,'CELULARES','CELULARES NUEVOS Y USADOS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(2,'COMPUTADORAS','COMPUTADORAS NUEVAS Y USADAS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(3,'TELEVISORES','PANTALLAS NUEVAS Y USADAS');
+INSERT INTO Categoria(IDCategoria,NombreCategoria,DescripcionCategoria) VALUES(4,'CABLES','CABLES PARA CADA DISPOSITIVO') ;
 PRINT 'INFORMACION INSERTADA DE CATEGORIA'
 
 INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto,IDCategoria,IDProveedor,IDPromociones) VALUES(1,'IPHONE 15','ESTADO NUEVO',1000000,16,1,1,1);
@@ -157,22 +149,22 @@ INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo
 INSERT INTO Producto(ID_Codigo_Producto,NombreProducto,DescripcionProducto,Costo,Cantidad_en_stock_Producto,IDCategoria,IDProveedor,IDPromociones) VALUES(5,'TECLADO Y MOUSE','ESTADO NUEVO',20000,100,2,4,4);
 PRINT 'INFORMACION INSERTADA DE PRODUCTO'
 
-INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado,ID_Codigo_Factura) VALUES(1,'NUEVO','Comprado recientemente',1);
-INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado,ID_Codigo_Factura) VALUES(2,'NUEVO','Comprado hace un mes',2);
-INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado,ID_Codigo_Factura) VALUES(3,'NUEVO','Comprado recientemente',3);
-INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado,ID_Codigo_Factura) VALUES(4,'NUEVO','Comprado hace un mes',4);
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(1,'NUEVO','Comprado recientemente');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(2,'NUEVO','Comprado hace un mes');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(3,'NUEVO','Comprado recientemente');
+INSERT INTO Estado(IDEstado,NombreEstado,DescripcionEstado) VALUES(4,'NUEVO','Comprado hace un mes');
 PRINT 'INFORMACION INSERTADA DE ESTADO'
 
-INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes,ID_Codigo_Factura) VALUES(1,'Adriana','Diaz','Heredia','89785634','adriana@gmail.com',1);
-INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes,ID_Codigo_Factura) VALUES(2,'Maria','Martinez','San Jose','89098765','mariam@gmail.com',2);
-INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes,ID_Codigo_Factura) VALUES(3,'Jose','Blanco','Cartago','23674356','joseb@hotmail.com',3);
-INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes,ID_Codigo_Factura) VALUES(4,'Laura','Vargas','Puntarenas','12894356','lauravargas@hotmail.com',4);
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(1,'Adriana','Diaz','Heredia','89785634','adriana@gmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(2,'Maria','Martinez','San Jose','89098765','mariam@gmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(3,'Jose','Blanco','Cartago','23674356','joseb@hotmail.com');
+INSERT INTO Clientes(IDClientes,NombreClientes,ApellidoClientes,DireccionClientes,NumeroDeTelefonoClientes,CorreoElectronicoClientes) VALUES(4,'Laura','Vargas','Puntarenas','12894356','lauravargas@hotmail.com');
 PRINT 'INFORMACION INSERTADA DE CLIENTES'
 
-INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado,ID_Codigo_Factura) VALUES(001,'Rodolfo','Diaz',1);
-INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado,ID_Codigo_Factura) VALUES(200,'Pedro','Sanchez',2);
-INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado,ID_Codigo_Factura) VALUES(089,'Jose','Murillo',3);
-INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado,ID_Codigo_Factura) VALUES(003,'Raul','Cajina',4);
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(001,'Rodolfo','Diaz');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(200,'Pedro','Sanchez');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(089,'Jose','Murillo');
+INSERT INTO Empleado(IDEmpleado,NombreEmpleado,ApellidoEmpleado) VALUES(003,'Raul','Cajina');
 PRINT 'INFORMACION INSERTADA DE EMPLEADO'
 
 INSERT INTO MetododePago(IDMetododePago,TipoMetododePago,DescripcionMetododePago,FechaMetododePago) VALUES(1,'Efectivo','Completo','2023-02-28');
@@ -189,10 +181,10 @@ INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFa
 INSERT INTO Factura(ID_Codigo_Factura,Fecha_de_Factura,DetalleFactura,CantidadFactura,IDClientes,MontoVendido,IDEstado,IDMetododePago,IDEmpleado) VALUES(6,'2023-12-05','SE REALIZO UNA FACTURA DE UN TECLADO Y MOUSE',1,3,20000,3,1,001);
 PRINT 'INFORMACION INSERTADA DE FACTURA'
 
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(1,'2023-01-30',1,1,1)
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(2,'2022-08-20',2,2,2);
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(3,'2023-01-10',1,3,3);
-INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad,ID_Codigo_Producto,ID_Codigo_Factura) VALUES(4,'2024-05-20',3,4,4);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(1,'2023-01-30',1);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(2,'2022-08-20',2);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(3,'2023-01-10',1);
+INSERT INTO Pedido(IDPedido,Fecha_de_Pedido,Cantidad) VALUES(4,'2024-05-20',3);
 PRINT 'INFORMACION INSERTADA DE PEDIDO'
 
 
@@ -241,7 +233,7 @@ SELECT
 FROM
     Clientes C
     JOIN Factura F ON C.IDClientes = F.IDClientes
-	INNER JOIN Pedido P ON F.ID_Codigo_Factura = P.ID_Codigo_Factura
+	INNER JOIN Pedido P ON F.ID_Codigo_Factura = P.IDPedido
 WHERE
     C.IDClientes = @CodigoCliente AND 
 	F.Fecha_de_Factura BETWEEN @FechaInicio AND @FechaFin;
@@ -255,8 +247,8 @@ SELECT
     P.Cantidad_en_stock_Producto AS CantidadFacturada
 FROM
     Pedido PD
-    JOIN Factura F ON PD.ID_Codigo_Factura = F.ID_Codigo_Factura
-    JOIN Producto P ON PD.ID_Codigo_Producto = P.ID_Codigo_Producto
+    JOIN Factura F ON PD.IDPedido = F.ID_Codigo_Factura
+    JOIN Producto P ON PD.IDPedido = P.ID_Codigo_Producto
 WHERE
     F.ID_Codigo_Factura = '2';
 
