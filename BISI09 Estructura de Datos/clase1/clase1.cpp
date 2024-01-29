@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-int main()
+int main() //aqui pruebo mi codigo
 {
     int p = 7500;
     double pconIVA = p * 0.14;
