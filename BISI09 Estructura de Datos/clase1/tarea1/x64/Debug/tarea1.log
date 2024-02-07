@@ -1,0 +1,7 @@
+﻿  tarea1.cpp
+C:\Users\adria\OneDrive\Documents\tarea1\tarea1.cpp(65,23): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\adria\OneDrive\Documents\tarea1\tarea1.cpp(68,23): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\adria\OneDrive\Documents\tarea1\tarea1.cpp(101,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\adria\OneDrive\Documents\tarea1\tarea1.cpp(104,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\adria\OneDrive\Documents\tarea1\tarea1.cpp(107,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  tarea1.vcxproj -> C:\Users\adria\OneDrive\Documents\tarea1\x64\Debug\tarea1.exe
