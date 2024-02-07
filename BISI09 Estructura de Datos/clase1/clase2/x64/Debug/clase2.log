@@ -1,0 +1,3 @@
+﻿  clase2.cpp
+C:\Users\adria\OneDrive\Documents\clase2\clase2.cpp(76,23): warning C4305: 'initializing': truncation from 'double' to 'float'
+  clase2.vcxproj -> C:\Users\adria\OneDrive\Documents\clase2\x64\Debug\clase2.exe
