@@ -1,0 +1,3 @@
+﻿  practicaclase6.cpp
+C:\Users\adria\OneDrive\Documents\practicaclase6\practicaclase6.cpp(14,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  practicaclase6.vcxproj -> C:\Users\adria\OneDrive\Documents\practicaclase6\x64\Debug\practicaclase6.exe
