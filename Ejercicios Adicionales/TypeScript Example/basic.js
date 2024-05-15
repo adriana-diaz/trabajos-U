@@ -7,6 +7,11 @@
 //npm install -g typescript
 
 
+// Update an npm Package Globally
+//npm update -g typescript
+// Uninstall an npm Package Globally
+//npm uninstall -g typescript
+
 var Customer = /** @class */ (function () {
     function Customer(name) {
         this.name = name;
