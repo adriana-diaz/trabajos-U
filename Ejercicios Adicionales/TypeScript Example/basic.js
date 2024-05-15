@@ -1,3 +1,12 @@
+//1. Install node.js 
+//https://nodejs.org/en/download
+//2. Check the Current Node Package Manager (npm)
+//node -v
+//npm -v
+// 3. Install an npm Package Globally
+//npm install -g typescript
+
+
 var Customer = /** @class */ (function () {
     function Customer(name) {
         this.name = name;
