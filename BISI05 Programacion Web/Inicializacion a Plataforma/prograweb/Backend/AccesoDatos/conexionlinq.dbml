@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="prograWeb" Class="conexionlinqDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=xporthood.c7zdwys8stee.us-east-1.rds.amazonaws.com,1433;Initial Catalog=prograWeb;User ID=sa;Trust Server Certificate=True" SettingsObjectName="Backend.Properties.Settings" SettingsPropertyName="prograWebConnectionString" Provider="System.Data.SqlClient" />
+  <Function Name="dbo.SP_INGRESARUSUARIO" Method="SP_INGRESARUSUARIO">
+    <Parameter Name="NOMBRE" Parameter="nOMBRE" Type="System.String" DbType="NVarChar(100)" />
+    <Parameter Name="APELLIDOS" Parameter="aPELLIDOS" Type="System.String" DbType="NVarChar(100)" />
+    <Return Type="System.Int32" />
+  </Function>
+</Database>
