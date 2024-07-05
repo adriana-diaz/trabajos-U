@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href="#tablas">Ir a tablas</a><br/>
+    <a href="#listas">Ir a listas</a>
+
+    <h1 id="formulario">Formulario</h1>
+    <form action="miBackend.html" method="post"> 
+        <label for="txtNombre">Nombre </label>
+        <input type="text" name="nombre" id="txtNombre" placeholder="Ingrese nombre"/>
+        <br/>
+        <label for="txtApellidos">Apellidos </label>
+        <input type="text" name="apellidos" id="txtApellidos" placeholder="Ingrese apellidos"/>
+        <br/>
+        <textarea cols="20" rows="3" id="txtComentarios" placeholder="Sus comentarios..."></textarea>
+        <br/>
+        <label for="txtPassword">Password</label>
+        <input type="password" name="password" id="txtPassword">
+        <br/>
+        <label for="tmHora">hora</label>
+        <input type="time" id="tmHora">
+        <br/>
+        <label for="dtFecha" >Fecha</label>
+        <input type="date" id="dtFecha">
+        <br/>
+        <label for="txtEmail">Email</label>
+        <input type="email" id="txtEmail">
+        <input type="reset"/>
+        <button type="reset">Limpiar todito!!</button>
+        <input type="submit"/>
+        <button type="submit">Mandar el formulario</button>
+    </form>
+    <br/>
+    <hr/>
+    <h1 id="tablas">Tablas en html!!</h1>
+    <table border="1px solid" border-style="solid">
+        <thead>
+            <tr>
+                <th>Descripcion</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Mouse</td>
+                <td>2</td>
+                <td>3000</td>
+            </tr>
+            <tr>
+                <td>Teclado</td>
+                <td>1</td>
+                <td>15000</td>
+            </tr>
+            <tr>
+                <td>Monitor</td>
+                <td>1</td>
+                <td>55000</td>
+            </tr>
+            <tr>
+                <td>CPU</td>
+                <td>1</td>
+                <td>90000</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>Total 150000</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <hr>
+    <h1 id="listas">Listas</h1>
+        <ul>
+            <li>Costa Rica</li>
+            <li>Canada</li>
+            <li>Francia</li>
+        </ul>
+        <ol>
+            <li>Costa Rica</li>
+            <li>Canada</li>
+            <li>Francia</li>
+        </ol>
+        <a href="#formulario">Ir a inicio</a>
+</body>
+</html>
