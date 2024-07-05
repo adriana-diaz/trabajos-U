@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href="#tabla">ir a tablas</a><br/>
+    <a href="#listas">ir a listas</a>
+
+    <h1 id="formulario"></h1>
+  <form action="miBackend.html" method="post">
+        <label for="txtNombre">Nombre:</label>
+        <input type="text" name="nombre" id="txtNombre" placeholder="Ingrese nombre"/>
+    <br/>
+        <label for="txtApellido">Apellido:</label>
+        <input type="text" name="apellido" id="txtApellido" placeholder="Ingrese apellido"/>
+    <br/>
+        <!-- <label>Genero</label>
+        <input type="radio" name="rdGenero"> Masculino </input>
+        <input type="radio"name="rdGenero"> Femenino </input>
+    <br/>     -->
+        <label for="txtPassword">Password</label>
+        <input type="password" name="password" id="txtPassword">
+    <br/>
+        <label for="txttime">Hora</label>
+        <input type="time" id="tmHora">
+    <br/>
+        <label for="txtFecha">Fecha:</label>
+        <input type="date" id="txtFecha"/>
+    <br/>
+        <label for="txtEmail">Email</label>
+        <input type="email" id="txtEmail">
+    <hr/>
+     <input type="reset"/>
+     <input type="submit"/>
+ </form>
+ <br/>
+ <hr/>
+ <h1 id="tabla">Tabla</h1>
+ <table border="1px" border-style="solid">
+    <thead>
+    <tr>
+        <th>Descripcion</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Mouse</td>
+            <td>345678</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>Teclado</td>
+            <td>12345</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>Monitor</td>
+            <td>999</td>
+            <td>9</td>
+        </tr>
+        <tr>
+            <td>CPU</td>
+            <td>110</td>
+            <td>12345</td>
+        </tr>
+    </tbody>
+    <tfoot>
+            <td colspan="2">Total:</td>
+            <td>1234567</td>
+    </tfoot>
+ </table>
+ <hr>
+ <h1 id="listas"></h1>>Listas</h1>
+ <ul>
+    <li>Costa Rica</li>
+    <li>Canada</li>
+ </ul>
+ <ol>
+    <li>Costa Rica</li>
+    <li>Canada</li>
+ </ol>
+ 
+</body>
+</html>
