@@ -1,0 +1,32 @@
+.classparrafo01{
+    color: rgb(208, 17, 68);
+}
+.classparrafo02{
+    color: rgb(4, 149, 62);
+}
+ 
+.div1{
+    color: chocolate;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+.div2{
+    color: rgb(210, 30, 159);
+    font-family: 'Times New Roman', Times, serif;
+}
+.classborder{
+    border: 10px solid rgb(208, 255, 0);
+    padding: 20px;
+    margin: 20px;
+ 
+}
+.borderedondeado{
+    border-style:solid;
+    border-color:rgb(255, 0, 0);
+    border-radius: 10px;
+ 
+ 
+}
+*{
+ font-size: x-large;
+ color:blueviolet;
+}
