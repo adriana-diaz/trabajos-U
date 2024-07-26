@@ -71,6 +71,7 @@ CREATE TABLE DetalleCompra (
     FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
     FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
 );
+
 CREATE TABLE Sesiones(
     id BIGINT IDENTITY(1,1) PRIMARY KEY,  
     sesion NVARCHAR(MAX) NOT NULL,  
@@ -231,7 +232,21 @@ GO
 
 
 --agregar usuario
+DECLARE @IDRETURN INT,
+        @ERRORID INT,
+        @ERRORDESCRIPCION NVARCHAR(MAX);
 
+EXEC SP_INGRESAR_USUARIO 
+    @NOMBRE = 'a', 
+    @EMAIL = 'awew@example.com', 
+    @PASSWORD = 'password123', 
+    @IDRETURN = @IDRETURN OUTPUT, 
+    @ERRORID = @ERRORID OUTPUT, 
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
+SELECT @IDRETURN AS ID_RETURN, 
+       @ERRORID AS ERROR_ID, 
+       @ERRORDESCRIPCION AS ERROR_DESCRIPCION;
 ------------------------------------------------------
 --ELIMINAR USUARIO
 
@@ -256,8 +271,8 @@ DECLARE @ID_USUARIO BIGINT,
         @SESION_ID BIGINT;
 
 EXEC SP_LOGIN_USUARIO 
-    @EMAIL = 'adriana@example.com',
-    @PASSWORD = '300305',
+    @EMAIL = 'awew@example.com',
+    @PASSWORD = 'password123',
     @ID_USUARIO = @ID_USUARIO OUTPUT,
     @FECHA_REGISTRO = @FECHA_REGISTRO OUTPUT,
     @NOMBRE = @NOMBRE OUTPUT,
@@ -270,7 +285,11 @@ SELECT @ID_USUARIO AS ID_USUARIO,
 
 -------------------------------------------------------------
 EXEC SP_CERRAR_SESION 
-    @SESION_ID = 1;  -- Reemplaza con el ID de sesión obtenido al iniciar sesión
-
+    @SESION_ID = 0;  -- Reemplaza con el ID de sesión obtenido al iniciar sesión
+-------------------------------------------------------------------------------------
 SELECT * FROM Sesiones;
 
+SELECT u.email
+FROM Sesiones s
+INNER JOIN Usuarios u ON s.usuario = u.id_usuario
+WHERE s.sesion = 'B3578023-4AA9-41D9-855E-FD7FC6518206';
