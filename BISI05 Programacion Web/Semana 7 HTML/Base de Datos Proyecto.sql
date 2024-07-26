@@ -75,7 +75,6 @@ CREATE TABLE DetalleCompra (
 
 CREATE TABLE Sesiones(
     id BIGINT IDENTITY(1,1) PRIMARY KEY, 
-	id_usuario INT,
     sesion NVARCHAR(MAX) NOT NULL,  
     usuario BIGINT NOT NULL,  
     origen NVARCHAR(MAX) NULL,  
@@ -83,7 +82,6 @@ CREATE TABLE Sesiones(
     fecha_final DATETIME NULL,  
     estado INT NOT NULL,  
     fecha_actualizacion DATETIME NOT NULL,
-	FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
 );
 GO
 
@@ -222,32 +220,52 @@ END
 GO
 
 
-
 USE BDProyectoWeb
 GO
+
 CREATE PROCEDURE SP_CERRAR_SESION
 (
-    @SESION_ID BIGINT
+    @ID_SESION BIGINT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
 )
 AS
 BEGIN
-    -- Actualizar el estado de la sesión a inactiva y registrar la fecha de cierre
-    UPDATE Sesiones
-    SET
-        estado = 0,  -- Estado 0 indica que la sesión está cerrada
-        fecha_final = GETUTCDATE(),  -- Fecha y hora en que se cerró la sesión
-        fecha_actualizacion = GETUTCDATE()  -- Fecha y hora de la última actualización
-    WHERE
-        id = @SESION_ID;
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
 
-    -- Opcionalmente, puedes agregar una verificación de si la sesión fue efectivamente cerrada
-    IF @@ROWCOUNT = 0
-    BEGIN
-        -- Puedes manejar el caso en que no se encontró ninguna sesión para cerrar (opcional)
-        PRINT 'No se encontró ninguna sesión activa para el ID especificado.';
-    END
+        -- Verificar si la sesión existe
+        IF EXISTS (SELECT * FROM Sesiones WHERE id = @ID_SESION)
+        BEGIN
+            -- Actualizar la sesión para marcarla como cerrada
+            UPDATE Sesiones
+            SET
+                estado = 0,
+                fecha_final = GETDATE(),
+                fecha_actualizacion = GETDATE()
+            WHERE id = @ID_SESION;
+
+            -- No se requiere ID de retorno en este caso
+        END
+        ELSE
+        BEGIN
+            -- Sesión no encontrada
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: SESIÓN NO ENCONTRADA';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
 END
 GO
+
+
+
 
 --pruebas
 
@@ -305,8 +323,16 @@ SELECT @SESION_ID AS SESION_ID, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORD
 
 
 -------------------------------------------------------------
-EXEC SP_CERRAR_SESION 
-    @SESION_ID = 0;  -- Reemplaza con el ID de sesión obtenido al iniciar sesión
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+
+EXEC SP_CERRAR_SESION
+    @ID_SESION = 1, -- Reemplaza con el ID de sesión correspondiente
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
+SELECT @ERRORID, @ERRORDESCRIPCION;
+
 -------------------------------------------------------------------------------------
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
