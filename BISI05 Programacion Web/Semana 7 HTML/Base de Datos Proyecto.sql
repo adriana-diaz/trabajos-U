@@ -364,6 +364,65 @@ BEGIN
 END
 GO
 
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ACTUALIZAR_PRODUCTO
+(
+    @ID_PRODUCTO INT,
+    @NOMBRE NVARCHAR(100),
+    @DESCRIPCION NVARCHAR(MAX),
+    @PRECIO DECIMAL(18, 2),
+    @NOMBRE_CATEGORIA NVARCHAR(100),
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+
+        -- Verificar si el producto existe
+        IF EXISTS (SELECT 1 FROM Productos WHERE id_producto = @ID_PRODUCTO)
+        BEGIN
+            -- Verificar si la categoría es válida
+            IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE_CATEGORIA)
+            BEGIN
+                -- Actualizar el producto
+                UPDATE Productos
+                SET 
+                    nombre = @NOMBRE,
+                    descripcion = @DESCRIPCION,
+                    precio = @PRECIO,
+                    nombre_categoria = @NOMBRE_CATEGORIA,
+                    fecha_agregado = GETDATE() -- Puedes ajustar si no quieres actualizar esta fecha
+                WHERE id_producto = @ID_PRODUCTO;
+            END
+            ELSE
+            BEGIN
+                -- Categoría no válida
+                SET @ERRORID = 1;
+                SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
+            END
+        END
+        ELSE
+        BEGIN
+            -- Producto no encontrado
+            SET @ERRORID = 2;
+            SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+
+
 
 
 --Pruebas
@@ -450,8 +509,32 @@ EXEC SP_ELIMINAR_PRODUCTO
     @ERRORDESCRIPCION = @ERRORDESCRIPCION_ELIMINAR OUTPUT;
 
 SELECT @IDRETURN_ELIMINAR AS ID, @ERRORID_ELIMINAR AS ErrorID, @ERRORDESCRIPCION_ELIMINAR AS ErrorDescripcion;
+-------------------------------------------------------------------------------------------------
+--ACTUALIZAR PRODUCTO
+-- Variables para probar el procedimiento
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
+-- Llamar al procedimiento almacenado para actualizar un producto
+EXEC SP_ACTUALIZAR_PRODUCTO
+    @ID_PRODUCTO = 2,
+    @NOMBRE = 'cAFE ASFDESFGG',
+    @DESCRIPCION = 'SDFGGSDGDG',
+    @PRECIO = 19.99,
+    @NOMBRE_CATEGORIA = 'Bebidas',  -- Asegúrate de que esta categoría exista
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
 
+-- Mostrar los resultados de la ejecución
+SELECT 
+    @ERRORID AS ErrorID,
+    @ERRORDESCRIPCION AS ErrorDescripcion;
+
+------------------------------------insert-----------------------------------------
+--Insertar una categoría de ejemplo
+INSERT INTO Categorias (id_categoria, nombre, descripcion) 
+VALUES (1, 'Bebidas', 'Todas las bebidas disponibles');
+------------------------------------SELECTS-----------------------------------------
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
 SELECT * FROM Productos;
