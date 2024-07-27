@@ -42,11 +42,13 @@ CREATE TABLE Categorias (
 CREATE TABLE Productos (
     id_producto INT PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL,
-    descripcion TEXT,
-    precio DECIMAL(10, 2) NOT NULL,
-    id_categoria INT,
+    descripcion NVARCHAR(MAX),
+    precio DECIMAL(18, 2) NOT NULL,
+    id_categoria INT NOT NULL, -- ID de la categoría
+    fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
     FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria)
 );
+
 
 CREATE TABLE Inventario (
     id_inventario INT PRIMARY KEY,
@@ -67,10 +69,13 @@ CREATE TABLE DetalleCompra (
     id_detalle_compra INT PRIMARY KEY,
     id_compra INT,
     id_producto INT,
+	id_usuario INT,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10, 2) NOT NULL,
+	total DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+	FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
 );
 
 CREATE TABLE Sesiones(
@@ -218,7 +223,7 @@ BEGIN
     END CATCH
 END
 GO
-
+--NO TOCAR
 
 USE BDProyectoWeb
 GO
@@ -263,14 +268,50 @@ BEGIN
     END CATCH
 END
 GO
+--NO TOCAR
+
+USE BDProyectoWeb
+GO
+
+CREATE PROCEDURE SP_AGREGAR_PRODUCTO
+(
+    @NOMBRE NVARCHAR(100),
+    @DESCRIPCION NVARCHAR(MAX),
+    @PRECIO DECIMAL(18, 2),
+    @ID_CATEGORIA INT,
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @IDRETURN = 0;
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+
+        -- Insertar el nuevo producto
+        INSERT INTO Productos (nombre, descripcion, precio, id_categoria, fecha_agregado)
+        VALUES (@NOMBRE, @DESCRIPCION, @PRECIO, @ID_CATEGORIA, GETDATE());
+
+        -- Obtener el ID del nuevo producto
+        SET @IDRETURN = SCOPE_IDENTITY();
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
 
 
+--Pruebas
 
 
---pruebas
-
-
---agregar usuario
+--Agregar usuario
 DECLARE @IDRETURN INT;
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
@@ -334,5 +375,23 @@ EXEC SP_CERRAR_SESION
 SELECT @ERRORID, @ERRORDESCRIPCION;
 
 -------------------------------------------------------------------------------------
+--Verificar agregar producto
+DECLARE @IDRETURN INT;
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+
+EXEC SP_AGREGAR_PRODUCTO
+    @NOMBRE = 'Cafe Bolsa Peru',
+    @DESCRIPCION = 'Café fuerte y concentrado de Peru 550g.',
+    @PRECIO = 2500,
+    @ID_CATEGORIA = 1, -- Reemplaza con el ID de una categoría existente
+    @IDRETURN = @IDRETURN OUTPUT,
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
+SELECT @IDRETURN, @ERRORID, @ERRORDESCRIPCION;
+
+
+
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
