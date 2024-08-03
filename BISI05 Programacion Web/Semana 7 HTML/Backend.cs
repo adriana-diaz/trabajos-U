@@ -13,6 +13,7 @@ namespace prueba.Logica
 {
     public class LogProyecto
     {
+        //USUARIO
         public ResInsertarUsuario insertarUsuario(ReqInsertarUsuario req)
         {
             ResInsertarUsuario res = new ResInsertarUsuario();
@@ -26,7 +27,7 @@ namespace prueba.Logica
                 }
                 else
                 {
-                    if (req.usuario.id_usuario == 0)
+                    if (req.usuario.cedula == 0)
                     {
                         res.resultado = false;
                         res.error = "Usuario Incorrecto";
@@ -54,7 +55,7 @@ namespace prueba.Logica
                         string errorDescripcion = "";
 
                         ConexionLINQDataContext miLinq = new ConexionLINQDataContext();
-                        miLinq.SP_INGRESAR_USUARIO(req.usuario.id_usuario, req.usuario.nombre, req.usuario.email, req.usuario.password, ref returnId, ref errorId, ref errorDescripcion);
+                        miLinq.SP_INGRESAR_USUARIO(req.usuario.cedula, req.usuario.nombre, req.usuario.email, req.usuario.password, ref returnId, ref errorId, ref errorDescripcion);
                         if (returnId <= 0 || returnId == null)
                         {
 
@@ -79,6 +80,11 @@ namespace prueba.Logica
             return res;
         }
 
+
+        //listo
+
+
+        //LOGIN
         public ResLogin entrarlogin(ReqLogin req)
         {
             ResLogin res = new ResLogin();
@@ -105,10 +111,6 @@ namespace prueba.Logica
                     }
                     else
                     {
-                        string apellidos = "";
-                        string nombre = "";
-                        int? estado = 0;
-                        int? id_usuario = 0;
                         int? returnId = 0;
                         int? errorId = 0;
                         string errorDescripcion = "";
@@ -140,7 +142,7 @@ namespace prueba.Logica
 
             return res;
         }
-
+        //listo
 
         public ResSalirLogin salirlogin(ReqSalirLogin req)
         {
@@ -155,16 +157,19 @@ namespace prueba.Logica
                 }
                 else
                 {
-                    if (String.IsNullOrEmpty(req.sesion.sesion))
+                    if (req.login.sesion_id == 0)
                     {
                         res.resultado = false;
                         res.error = "Sesion Incorrecta";
                     }
                     else
                     {
+                        int? returnId = 0;
+                        int? errorId = 0;
+                        string errorDescripcion = "";
 
-                        conexionLinqDataContext miLinq = new conexionLinqDataContext();
-                        miLinq.SP_CERRAR_SESION(req.sesion.sesion);
+                        ConexionLINQDataContext miLinq = new ConexionLINQDataContext();
+                        miLinq.SP_CERRAR_SESION(req.login.sesion_id, ref returnId, ref errorId, ref errorDescripcion);
                         //todo paso bien
 
                         res.resultado = true;
@@ -180,9 +185,11 @@ namespace prueba.Logica
 
             return res;
         }
+        //listo
 
 
-        public ResAgregarProducto AgregarUsuario(ReqAgregarProducto req)
+        //PRODUCTO
+        public ResAgregarProducto agregarProducto(ReqAgregarProducto req)
         {
             ResAgregarProducto res = new ResAgregarProducto();
 
@@ -222,9 +229,10 @@ namespace prueba.Logica
                         int? returnId = 0;
                         int? errorId = 0;
                         string errorDescripcion = "";
+                        long? sesion_id = 0;
 
                         ConexionLINQDataContext miLinq = new ConexionLINQDataContext();
-                        miLinq.SP_INGRESAR_USUARIO(req.usuario.id_usuario, req.usuario.nombre, req.usuario.email, req.usuario.password, ref returnId, ref errorId, ref errorDescripcion);
+                        miLinq.SP_AGREGAR_PRODUCTO(req.producto.nombre, req.producto.descripcion, req.producto.precio, req.producto.nombre_categoria, ref returnId, ref errorId, ref errorDescripcion);
                         if (returnId <= 0 || returnId == null)
                         {
 
@@ -248,7 +256,7 @@ namespace prueba.Logica
 
             return res;
         }
-
+        //listo
     }
 }
 
