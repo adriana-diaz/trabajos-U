@@ -36,7 +36,7 @@ CREATE TABLE Categorias (
 -- Tabla Productos con la columna id_categoria para la asignación directa
 CREATE TABLE Productos (
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
-    nombre NVARCHAR(100) NOT NULL,
+    nombre NVARCHAR(100) NOT NULL UNIQUE,
     descripcion NVARCHAR(MAX),
     precio DECIMAL(18, 2) NOT NULL,
     fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE Productos (
 -- Las demás tablas permanecen igual
 CREATE TABLE Usuarios (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
-    cedula INT NOT NULL,
+    cedula INT NOT NULL UNIQUE,
     nombre NVARCHAR(100) NOT NULL,
     email NVARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -56,9 +56,9 @@ CREATE TABLE Usuarios (
 
 CREATE TABLE Inventario (
     id_inventario INT IDENTITY(1,1) PRIMARY KEY,
-    id_producto INT,
     cantidad INT NOT NULL,
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
+	nombre_producto NVARCHAR(100),
+    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
 );
 
 CREATE TABLE Compras (
@@ -278,7 +278,7 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR FINAL
 
 USE BDProyectoWeb
 GO
@@ -322,8 +322,8 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
-
+--NO TOCAR FINAL
+------------------------------------------------
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_AGREGAR_PRODUCTO
@@ -376,85 +376,91 @@ USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_ELIMINAR_PRODUCTO
 (
-    @ID_PRODUCTO INT,
-    @IDRETURN INT OUTPUT,
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+    @NOMBRE NVARCHAR(100),            -- Nombre del producto a eliminar
+    @IDRETURN INT OUTPUT,             -- Salida del resultado del procedimiento
+    @ERRORID INT OUTPUT,              -- Salida del código de error
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
 )
 AS
 BEGIN
     BEGIN TRY
         -- Inicializar valores de salida
-        SET @IDRETURN = 0;
+        SET @IDRETURN = 1;
         SET @ERRORID = 0;
         SET @ERRORDESCRIPCION = '';
 
         -- Verificar si el producto existe
-        IF EXISTS (SELECT 1 FROM Productos WHERE id_producto = @ID_PRODUCTO)
+        IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE)
         BEGIN
             -- Eliminar el producto
-            DELETE FROM Productos WHERE id_producto = @ID_PRODUCTO;
+            DELETE FROM Productos
+            WHERE nombre = @NOMBRE;
 
-            -- Devolver el ID del producto eliminado
-            SET @IDRETURN = @ID_PRODUCTO;
+            -- Confirmar la eliminación
+            SET @IDRETURN = 1; -- Éxito
+            SET @ERRORDESCRIPCION = 'Producto eliminado exitosamente.';
         END
         ELSE
         BEGIN
             -- Producto no encontrado
-            SET @IDRETURN = -1;
+            SET @IDRETURN = 0; -- Error
             SET @ERRORID = 1;
             SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
         END
     END TRY
     BEGIN CATCH
         -- Manejo de errores
-        SET @IDRETURN = -1;
+        SET @IDRETURN = 0; -- Error
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
 --NO TOCAR
+
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_ACTUALIZAR_PRODUCTO
 (
-    @NOMBRE NVARCHAR(100),
-    @DESCRIPCION NVARCHAR(MAX),
-    @PRECIO DECIMAL(18, 2),
-    @NOMBRE_CATEGORIA NVARCHAR(100),
-    @RESULTADO NVARCHAR(100) OUTPUT,
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+    @NOMBRE_ORIGINAL NVARCHAR(100),     -- Nombre original del producto que se va a actualizar
+    @NUEVO_NOMBRE NVARCHAR(100),        -- Nuevo nombre del producto
+    @NUEVA_DESCRIPCION NVARCHAR(MAX),   -- Nueva descripción del producto
+    @NUEVO_PRECIO DECIMAL(18, 2),       -- Nuevo precio del producto
+    @NUEVO_NOMBRE_CATEGORIA NVARCHAR(100), -- Nuevo nombre de la categoría
+    @IDRETURN INT OUTPUT,               -- Salida del resultado del procedimiento
+    @ERRORID INT OUTPUT,                -- Salida del código de error
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
 )
 AS
 BEGIN
     BEGIN TRY
         -- Inicializar valores de salida
-        SET @RESULTADO = 'Éxito';
+        SET @IDRETURN = 1;
         SET @ERRORID = 0;
         SET @ERRORDESCRIPCION = '';
- 
-        -- Verificar si la categoría es válida
-        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE_CATEGORIA)
+
+        -- Verificar si la nueva categoría es válida
+        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NUEVO_NOMBRE_CATEGORIA)
         BEGIN
-            -- Verificar si el producto existe
-            IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE)
+            -- Verificar si el producto original existe
+            IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE_ORIGINAL)
             BEGIN
                 -- Actualizar el producto
                 UPDATE Productos
-                SET descripcion = @DESCRIPCION,
-                    precio = @PRECIO,
-                    nombre_categoria = @NOMBRE_CATEGORIA
-                WHERE nombre = @NOMBRE;
- 
+                SET nombre = @NUEVO_NOMBRE,
+                    descripcion = @NUEVA_DESCRIPCION,
+                    precio = @NUEVO_PRECIO,
+                    nombre_categoria = @NUEVO_NOMBRE_CATEGORIA
+                WHERE nombre = @NOMBRE_ORIGINAL;
+
                 -- Confirmar la actualización
-                SET @RESULTADO = 'Producto actualizado exitosamente.';
+                SET @IDRETURN = 1; -- Éxito
+                SET @ERRORDESCRIPCION = 'Producto actualizado exitosamente.';
             END
             ELSE
             BEGIN
                 -- Producto no encontrado
-                SET @RESULTADO = 'Error';
+                SET @IDRETURN = 0; -- Error
                 SET @ERRORID = 2;
                 SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
             END
@@ -462,20 +468,22 @@ BEGIN
         ELSE
         BEGIN
             -- Categoría no válida
-            SET @RESULTADO = 'Error';
+            SET @IDRETURN = 0; -- Error
             SET @ERRORID = 1;
             SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
         END
     END TRY
     BEGIN CATCH
         -- Manejo de errores
-        SET @RESULTADO = 'Error';
+        SET @IDRETURN = 0; -- Error
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
+--NO TOCAR
 
+--------------------------------------------------------
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_INSERTAR_CATEGORIA
@@ -502,7 +510,7 @@ BEGIN
     END CATCH
 END
 GO
-
+--NO TOCAR
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE ActualizarCategoria
@@ -544,156 +552,202 @@ BEGIN
 END;
 
 
-
---NO TOCAR
---Pruebas
---Agregar usuario
-
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-
-EXEC SP_INGRESAR_USUARIO
-    @CEDULA = 559595955,          -- Cédula del usuario (debe ser única)
-    @NOMBRE = 'daniel',
-    @EMAIL = 'dani@gmail.com',
-    @PASSWORD = 'securepassword',
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-
-SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
-
-
-------------------------------------------------------
---ELIMINAR USUARIO
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-EXEC SP_ELIMINAR_USUARIO
-    @CEDULA = 559595955,   
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
-
---------------------------------------------------
---Actualizar Usuario
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-EXEC SP_ACTUALIZAR_USUARIO
-    @CEDULA = 11111111,          -- Cédula del usuario
-    @NOMBRE = 'daniel',
-    @EMAIL = 'dani@gmail.com',
-    @PASSWORD = 'newsecurepassword',
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
--------------------------------------------------------------------------------------------
---INICIAR SESION
-DECLARE @SESION_ID BIGINT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-EXEC SP_LOGIN_USUARIO
-    @EMAIL = 'adriupdated@gmail.com',
-    @PASSWORD = 'newsecurepassword',
-    @SESION_ID = @SESION_ID OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-SELECT @SESION_ID AS SESION_ID, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
-
-
--------------------------------------------------------------
---CERRAR SESION // debria de ser por usuario
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-
-EXEC SP_CERRAR_SESION
-    @SESION_ID = 9,          -- ID de la sesión que se desea cerrar
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-
-SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
--------------------------------------------------------------------------------------
---AGREGAR PRODUCTO
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
-
-EXEC SP_AGREGAR_PRODUCTO 
-    @NOMBRE = 'Capucchino', 
-    @DESCRIPCION = 'de alta calidad de Argentina', 
-    @PRECIO = 6.66, 
-    @NOMBRE_CATEGORIA = 'Bebidas Postman',
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-
-SELECT @IDRETURN AS ID, @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
----------------------------------------------------------------------------------------
---eliminar PRODUCTO
-DECLARE @IDRETURN_ELIMINAR INT;
-DECLARE @ERRORID_ELIMINAR INT;
-DECLARE @ERRORDESCRIPCION_ELIMINAR NVARCHAR(MAX);
-
--- Reemplaza 1 con el ID del producto que deseas eliminar
-EXEC SP_ELIMINAR_PRODUCTO 
-    @ID_PRODUCTO = 1,
-    @IDRETURN = @IDRETURN_ELIMINAR OUTPUT,
-    @ERRORID = @ERRORID_ELIMINAR OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION_ELIMINAR OUTPUT;
-
-SELECT @IDRETURN_ELIMINAR AS ID, @ERRORID_ELIMINAR AS ErrorID, @ERRORDESCRIPCION_ELIMINAR AS ErrorDescripcion;
--------------------------------------------------------------------------------------------------
---ACTUALIZAR PRODUCTO
--- Declarar variables de salida
-DECLARE @RESULTADO NVARCHAR(100);
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
- 
--- Ejecutar el procedimiento almacenado
-EXEC SP_ACTUALIZAR_PRODUCTO
-    @NOMBRE = 'Expresso',
-    @DESCRIPCION = 'cafe mucho RAM ',
-    @PRECIO = 1200.00,
-    @NOMBRE_CATEGORIA = 'Bebidas',
-    @RESULTADO = @RESULTADO OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
- 
--- Verificar los valores de salida
-SELECT @RESULTADO AS Resultado, @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
-	------------------------------------------------------------------------------
---Actualizar Categoria
-DECLARE @IDRETURN INT, @ERRORID INT, @ERRORDESCRIPCION NVARCHAR(MAX);
-
-EXEC ActualizarCategoria
-    @NOMBRE = 'Bebidas',
-    @NUEVO_NOMBRE = 'Bebidas Premium',
-    @NUEVA_DESCRIPCION = 'Bebidas de alta gama',
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
-
--- Verificar el resultado
-SELECT @IDRETURN, @ERRORID, @ERRORDESCRIPCION;
-
-------------------------------------insert-----------------------------------------
---Insertar una categoría de ejemplo
-INSERT INTO Categorias (nombre, descripcion) 
-VALUES ('Bebidas', 'Todas las bebidas disponibles');
-
-DECLARE @IDRETURN INT, @ERRORID INT, @ERRORDESCRIPCION NVARCHAR(MAX);
-EXEC SP_INSERTAR_CATEGORIA 'Maquinas', 'Descripción de la categoría', @IDRETURN OUTPUT, @ERRORID OUTPUT, @ERRORDESCRIPCION OUTPUT;
-SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
+USE BDProyectoWeb
 GO
-------------------------------------SELECTS-----------------------------------------
-SELECT * FROM Sesiones;
-SELECT * FROM Usuarios;
-SELECT * FROM Productos;
-SELECT * FROM Categorias;
+--NO TOCAR
+CREATE PROCEDURE SP_ELIMINAR_CATEGORIA
+(
+    @NOMBRE NVARCHAR(100),         -- Nombre de la categoría que se va a eliminar
+    @IDRETURN INT OUTPUT,          -- Salida del resultado del procedimiento
+    @ERRORID INT OUTPUT,           -- Salida del código de error
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar si la categoría existe
+        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE)
+        BEGIN
+            -- Eliminar la categoría
+            DELETE FROM Categorias
+            WHERE nombre = @NOMBRE;
 
+            -- Retornar un valor de éxito
+            SET @IDRETURN = 1;
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = 'Eliminación exitosa';
+        END
+        ELSE
+        BEGIN
+            -- Categoría no encontrada
+            SET @IDRETURN = -1;
+            SET @ERRORID = 2; -- Categoría no encontrada
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: CATEGORÍA NO ENCONTRADA';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+--NO TOCAR
+---------------------------------------------------------
+--inventario
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_INSERTAR_INVENTARIO
+(
+    @NOMBRE_PRODUCTO NVARCHAR(100),
+    @CANTIDAD INT,
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @IDRETURN = 0;
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+ 
+        -- Verificar si el producto existe basado en su nombre
+        IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE_PRODUCTO)
+        BEGIN
+            -- Insertar un nuevo registro en Inventario
+            INSERT INTO Inventario (nombre_producto, cantidad)
+            VALUES (@NOMBRE_PRODUCTO, @CANTIDAD);
+ 
+            -- Obtener el ID del nuevo registro
+            SET @IDRETURN = SCOPE_IDENTITY();
+        END
+        ELSE
+        BEGIN
+            -- Producto no encontrado
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ACTUALIZAR_INVENTARIO
+(
+    @NOMBRE_PRODUCTO NVARCHAR(100),
+    @CANTIDAD INT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+        -- Obtener el ID del producto basado en su nombre
+        DECLARE @ID_PRODUCTO INT;
+        SELECT @ID_PRODUCTO = id_producto FROM Productos WHERE nombre = @NOMBRE_PRODUCTO;
+ 
+        -- Verificar si el producto existe
+        IF @ID_PRODUCTO IS NOT NULL
+        BEGIN
+            -- Actualizar el inventario
+            UPDATE Inventario
+            SET cantidad = @CANTIDAD
+            WHERE nombre_producto = @NOMBRE_PRODUCTO;
+        END
+        ELSE
+        BEGIN
+            -- Producto no encontrado
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ELIMINAR_INVENTARIO
+(
+    @NOMBRE_PRODUCTO NVARCHAR(100),
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicializar valores de salida
+        SET @IDRETURN = 0;
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+ 
+        -- Obtener el ID del producto basado en su nombre
+        DECLARE @ID_PRODUCTO INT;
+        SELECT @ID_PRODUCTO = id_producto FROM Productos WHERE nombre = @NOMBRE_PRODUCTO;
+ 
+        -- Verificar si el producto existe
+        IF @ID_PRODUCTO IS NOT NULL
+        BEGIN
+            -- Eliminar el registro del inventario
+            DELETE FROM Inventario WHERE nombre_producto = @NOMBRE_PRODUCTO;
+            SET @IDRETURN = @ID_PRODUCTO;
+        END
+        ELSE
+        BEGIN
+            -- Producto no encontrado
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_CONSULTAR_INVENTARIO
+(
+    @NOMBRE_PRODUCTO NVARCHAR(100) -- Parámetro para el nombre del producto
+)
+AS
+BEGIN
+    -- Verificar si se proporcionó un nombre de producto
+    IF @NOMBRE_PRODUCTO IS NULL
+    BEGIN
+        RAISERROR('El nombre del producto es obligatorio.', 16, 1);
+        RETURN;
+    END
+ 
+    -- Consultar el inventario basado en el nombre del producto
+    SELECT i.id_inventario, i.nombre_producto, i.cantidad
+    FROM Inventario i
+    WHERE i.nombre_producto = @NOMBRE_PRODUCTO;
+END
+GO
+--------------------------------------------------------
+--Compras
