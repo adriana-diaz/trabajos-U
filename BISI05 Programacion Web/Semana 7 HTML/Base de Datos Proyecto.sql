@@ -1,42 +1,44 @@
 USE master
 GO
 
-
 IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'BDProyectoWeb')
 DROP DATABASE BDProyectoWeb
 GO
 
-/** SE CREA LA BASE DE DATOS**/
+/** SE CREA LA BASE DE DATOS **/
 CREATE DATABASE BDProyectoWeb
 GO
-/** SE SELECCIONA LA BASE DE DATOS CREADA**/
+
+/** SE SELECCIONA LA BASE DE DATOS CREADA **/
 USE BDProyectoWeb
 GO
 
-/** INSTRUCCION QUE PERMITE CREAR LOS DIAGRAMAS**/
-Alter authorization on database::BDProyectoWeb to sa 
+/** INSTRUCCIÓN QUE PERMITE CREAR LOS DIAGRAMAS **/
+ALTER AUTHORIZATION ON DATABASE::BDProyectoWeb TO sa
 
-/*Establece el formato de la fecha en dia/mes/año, 
-cualquiera de las dos*/
+/* Establece el formato de la fecha en día/mes/año, 
+cualquiera de las dos */
 SET DATEFORMAT dmy
 SET LANGUAGE spanish
-/*Instruccion que indica que la proxima consulta 
-se ejecutará hasta que termine de ejecutarse la sentencia anterior*/
-GO 
---tablas--
+/* Instrucción que indica que la próxima consulta 
+se ejecutará hasta que termine de ejecutarse la sentencia anterior */
+GO
+
+-- Tablas --
 
 CREATE TABLE Usuarios (
-    id_usuario INT PRIMARY KEY,
+    id_usuario INT IDENTITY(1,1) PRIMARY KEY,
+    cedula INT NOT NULL,
     nombre NVARCHAR(100) NOT NULL,
     email NVARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    fecha_registro DATETIME DEFAULT GETDATE() NOT NULL,
+    fecha_registro DATETIME DEFAULT GETDATE() NOT NULL
 );
 
 CREATE TABLE Categorias (
-    id_categoria INT PRIMARY KEY,
+    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT
+    descripcion NVARCHAR(100) NOT NULL
 );
 
 -- Crear la tabla Productos sin la clave foránea inicialmente
@@ -54,52 +56,53 @@ ADD CONSTRAINT FK_Productos_Categorias FOREIGN KEY (nombre_categoria)
 REFERENCES Categorias (nombre);
 
 CREATE TABLE Inventario (
-    id_inventario INT PRIMARY KEY,
+    id_inventario INT IDENTITY(1,1) PRIMARY KEY,
     id_producto INT,
     cantidad INT NOT NULL,
     FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
 );
 
 CREATE TABLE Compras (
-    id_compra INT PRIMARY KEY,
+    id_compra INT IDENTITY(1,1) PRIMARY KEY,
     id_usuario INT,
-    fecha_compra  DATETIME DEFAULT GETDATE(),
+    fecha_compra DATETIME DEFAULT GETDATE(),
     total DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
 );
 
 CREATE TABLE DetalleCompra (
-    id_detalle_compra INT PRIMARY KEY,
+    id_detalle_compra INT IDENTITY(1,1) PRIMARY KEY,
     id_compra INT,
     id_producto INT,
-	id_usuario INT,
+    id_usuario INT,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10, 2) NOT NULL,
-	total DECIMAL(10, 2) NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
     FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
-	FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
 );
 
-CREATE TABLE Sesiones(
-    id BIGINT IDENTITY(1,1) PRIMARY KEY, 
-    sesion NVARCHAR(MAX) NOT NULL,  
-    usuario BIGINT NOT NULL,  
-    origen NVARCHAR(MAX) NULL,  
-    fecha_inicio DATETIME NOT NULL,  
-    fecha_final DATETIME NULL,  
-    estado INT NOT NULL,  
+CREATE TABLE Sesiones (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    sesion NVARCHAR(MAX) NOT NULL,
+    usuario INT NOT NULL, -- Cambiado de BIGINT a INT para que coincida con id_usuario
+    origen NVARCHAR(MAX) NULL,
+    fecha_inicio DATETIME NOT NULL,
+    fecha_final DATETIME NULL,
+    estado INT NOT NULL,
     fecha_actualizacion DATETIME NOT NULL,
+    FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario) -- Corregido para usar el nombre correcto de la columna
 );
 GO
+
 
 --STORED PROCEDURES
 USE BDProyectoWeb
 GO
-
 CREATE PROCEDURE SP_INGRESAR_USUARIO
 (
-    @ID_USUARIO INT,
+    @CEDULA INT,
     @NOMBRE NVARCHAR(100),
     @EMAIL NVARCHAR(100),
     @PASSWORD VARCHAR(255),
@@ -120,11 +123,11 @@ BEGIN
         ELSE
         BEGIN
             -- Insertar un nuevo usuario
-            INSERT INTO Usuarios (id_usuario, nombre, email, password, fecha_registro)
-            VALUES (@ID_USUARIO, @NOMBRE, @EMAIL, @PASSWORD, GETDATE());
+            INSERT INTO Usuarios (cedula, nombre, email, password, fecha_registro)
+            VALUES (@CEDULA, @NOMBRE, @EMAIL, @PASSWORD, GETDATE());
 
-            -- Retornar el ID del nuevo usuario
-            SET @IDRETURN = @ID_USUARIO;
+            -- Retornar la cédula del nuevo usuario
+            SET @IDRETURN = @CEDULA;
         END
     END TRY
     BEGIN CATCH
@@ -135,11 +138,13 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
 
+--NO TOCAR FINAL
+USE BDProyectoWeb
+GO
 CREATE PROCEDURE SP_ELIMINAR_USUARIO
 (
-    @ID_USUARIO INT,
+    @CEDULA INT,
     @IDRETURN INT OUTPUT,
     @ERRORID INT OUTPUT,
     @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
@@ -148,14 +153,14 @@ AS
 BEGIN
     BEGIN TRY
         -- Verificar si el usuario existe
-        IF EXISTS (SELECT 1 FROM Usuarios WHERE id_usuario = @ID_USUARIO)
+        IF EXISTS (SELECT 1 FROM Usuarios WHERE cedula = @CEDULA)
         BEGIN
             -- Eliminar el usuario
             DELETE FROM Usuarios
-            WHERE id_usuario = @ID_USUARIO;
+            WHERE cedula = @CEDULA;
 
-            -- Retornar el ID del usuario eliminado
-            SET @IDRETURN = @ID_USUARIO;
+            -- Retornar la cédula del usuario eliminado
+            SET @IDRETURN = @CEDULA;
         END
         ELSE
         BEGIN
@@ -173,7 +178,53 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
+
+--NO TOCAR FINAL
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ACTUALIZAR_USUARIO
+(
+    @CEDULA INT,
+    @NOMBRE NVARCHAR(100),
+    @EMAIL NVARCHAR(100),
+    @PASSWORD VARCHAR(255),
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar si el usuario existe
+        IF EXISTS (SELECT 1 FROM Usuarios WHERE cedula = @CEDULA)
+        BEGIN
+            -- Actualizar los datos del usuario
+            UPDATE Usuarios
+            SET nombre = @NOMBRE,
+                email = @EMAIL,
+                password = @PASSWORD
+            WHERE cedula = @CEDULA;
+
+            -- Retornar la cédula del usuario actualizado
+            SET @IDRETURN = @CEDULA;
+        END
+        ELSE
+        BEGIN
+            -- Usuario no encontrado
+            SET @IDRETURN = -1;
+            SET @ERRORID = 2; -- Usuario no encontrado
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: USUARIO NO ENCONTRADO';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+--NO TOCAR FINAL
 ---------------------------------------------------------------------------------------
 USE BDProyectoWeb
 GO
@@ -233,39 +284,38 @@ GO
 
 CREATE PROCEDURE SP_CERRAR_SESION
 (
-    @ID_SESION BIGINT,
+    @SESION_ID BIGINT,           -- Identificador de la sesión activa
+    @IDRETURN INT OUTPUT,
     @ERRORID INT OUTPUT,
     @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
 )
 AS
 BEGIN
     BEGIN TRY
-        -- Inicializar valores de salida
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
-
-        -- Verificar si la sesión existe
-        IF EXISTS (SELECT * FROM Sesiones WHERE id = @ID_SESION)
+        -- Verificar si la sesión existe y está activa
+        IF EXISTS (SELECT 1 FROM Sesiones WHERE id = @SESION_ID AND fecha_final IS NULL)
         BEGIN
-            -- Actualizar la sesión para marcarla como cerrada
+            -- Actualizar la fecha final de la sesión para marcarla como cerrada
             UPDATE Sesiones
-            SET
-                estado = 0,
-                fecha_final = GETDATE(),
+            SET fecha_final = GETDATE(),
+                estado = 0,  -- Asumiendo que 0 indica una sesión cerrada
                 fecha_actualizacion = GETDATE()
-            WHERE id = @ID_SESION;
+            WHERE id = @SESION_ID;
 
-            -- No se requiere ID de retorno en este caso
+            -- Retornar el ID de la sesión cerrada
+            SET @IDRETURN = @SESION_ID;
         END
         ELSE
         BEGIN
-            -- Sesión no encontrada
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: SESIÓN NO ENCONTRADA';
+            -- Sesión no encontrada o ya cerrada
+            SET @IDRETURN = -1;
+            SET @ERRORID = 2; -- Sesión no encontrada o ya cerrada
+            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: SESIÓN NO ENCONTRADA O YA CERRADA';
         END
     END TRY
     BEGIN CATCH
         -- Manejo de errores
+        SET @IDRETURN = -1;
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
@@ -363,16 +413,16 @@ BEGIN
     END CATCH
 END
 GO
-
+--NO TOCAR
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_ACTUALIZAR_PRODUCTO
 (
-    @ID_PRODUCTO INT,
     @NOMBRE NVARCHAR(100),
     @DESCRIPCION NVARCHAR(MAX),
     @PRECIO DECIMAL(18, 2),
     @NOMBRE_CATEGORIA NVARCHAR(100),
+    @RESULTADO NVARCHAR(100) OUTPUT,
     @ERRORID INT OUTPUT,
     @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
 )
@@ -380,66 +430,136 @@ AS
 BEGIN
     BEGIN TRY
         -- Inicializar valores de salida
+        SET @RESULTADO = 'Éxito';
         SET @ERRORID = 0;
         SET @ERRORDESCRIPCION = '';
-
-        -- Verificar si el producto existe
-        IF EXISTS (SELECT 1 FROM Productos WHERE id_producto = @ID_PRODUCTO)
+ 
+        -- Verificar si la categoría es válida
+        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE_CATEGORIA)
         BEGIN
-            -- Verificar si la categoría es válida
-            IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE_CATEGORIA)
+            -- Verificar si el producto existe
+            IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE)
             BEGIN
                 -- Actualizar el producto
                 UPDATE Productos
-                SET 
-                    nombre = @NOMBRE,
-                    descripcion = @DESCRIPCION,
+                SET descripcion = @DESCRIPCION,
                     precio = @PRECIO,
-                    nombre_categoria = @NOMBRE_CATEGORIA,
-                    fecha_agregado = GETDATE() -- Puedes ajustar si no quieres actualizar esta fecha
-                WHERE id_producto = @ID_PRODUCTO;
+                    nombre_categoria = @NOMBRE_CATEGORIA
+                WHERE nombre = @NOMBRE;
+ 
+                -- Confirmar la actualización
+                SET @RESULTADO = 'Producto actualizado exitosamente.';
             END
             ELSE
             BEGIN
-                -- Categoría no válida
-                SET @ERRORID = 1;
-                SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
+                -- Producto no encontrado
+                SET @RESULTADO = 'Error';
+                SET @ERRORID = 2;
+                SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
             END
         END
         ELSE
         BEGIN
-            -- Producto no encontrado
-            SET @ERRORID = 2;
-            SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
+            -- Categoría no válida
+            SET @RESULTADO = 'Error';
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
         END
     END TRY
     BEGIN CATCH
         -- Manejo de errores
+        SET @RESULTADO = 'Error';
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
 
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_INSERTAR_CATEGORIA
+(
+    @NOMBRE NVARCHAR(100),
+    @DESCRIPCION NVARCHAR(100),
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        INSERT INTO Categorias (nombre, descripcion)
+        VALUES (@NOMBRE, @DESCRIPCION);
+        SET @IDRETURN = SCOPE_IDENTITY();
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = 'Inserción exitosa';
+    END TRY
+    BEGIN CATCH
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
 
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ACTUALIZAR_CATEGORIA
+(
+    @NOMBRE_ACTUAL NVARCHAR(100),
+    @NUEVO_NOMBRE NVARCHAR(100),
+    @DESCRIPCION NVARCHAR(100),
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Actualizar la categoría basada en el nombre actual
+        UPDATE Categorias
+        SET nombre = @NUEVO_NOMBRE, descripcion = @DESCRIPCION
+        WHERE nombre = @NOMBRE_ACTUAL;
 
+        -- Verificar si se actualizó alguna fila
+        IF @@ROWCOUNT = 0
+        BEGIN
+            -- Si no se actualizó ninguna fila, significa que el nombre actual no se encontró
+            SET @ERRORID = 1;
+            SET @ERRORDESCRIPCION = 'No se encontró ninguna categoría con el nombre especificado.';
+        END
+        ELSE
+        BEGIN
+            -- No hay errores
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = 'Actualización exitosa.';
+        END
+    END TRY
+    BEGIN CATCH
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
 
-
+--NO TOCAR
 --Pruebas
 --Agregar usuario
 
 DECLARE @IDRETURN INT;
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+
 EXEC SP_INGRESAR_USUARIO
-    @ID_USUARIO = 119320150,          -- ID del usuario (debe ser único)
-    @NOMBRE = 'adrianaa',
-    @EMAIL = 'adri@gmail.com',
+    @CEDULA = 559595955,          -- Cédula del usuario (debe ser única)
+    @NOMBRE = 'daniel',
+    @EMAIL = 'dani@gmail.com',
     @PASSWORD = 'securepassword',
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
 SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
+
 
 ------------------------------------------------------
 --ELIMINAR USUARIO
@@ -447,20 +567,34 @@ DECLARE @IDRETURN INT;
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 EXEC SP_ELIMINAR_USUARIO
-    @ID_USUARIO = 119320150,   -- ID del usuario a eliminar
+    @CEDULA = 559595955,   
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
 SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
 
 --------------------------------------------------
+--Actualizar Usuario
+DECLARE @IDRETURN INT;
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+EXEC SP_ACTUALIZAR_USUARIO
+    @CEDULA = 11111111,          -- Cédula del usuario
+    @NOMBRE = 'daniel',
+    @EMAIL = 'dani@gmail.com',
+    @PASSWORD = 'newsecurepassword',
+    @IDRETURN = @IDRETURN OUTPUT,
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
+-------------------------------------------------------------------------------------------
 --INICIAR SESION
 DECLARE @SESION_ID BIGINT;
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 EXEC SP_LOGIN_USUARIO
-    @EMAIL = 'adri@gmail.com',
-    @PASSWORD = 'securepassword',
+    @EMAIL = 'adriupdated@gmail.com',
+    @PASSWORD = 'newsecurepassword',
     @SESION_ID = @SESION_ID OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -468,17 +602,18 @@ SELECT @SESION_ID AS SESION_ID, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORD
 
 
 -------------------------------------------------------------
---CERRAR SESION 
+--CERRAR SESION // debria de ser por usuario
+DECLARE @IDRETURN INT;
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
 EXEC SP_CERRAR_SESION
-    @ID_SESION = 1, -- Reemplaza con el ID de sesión correspondiente
+    @SESION_ID = 9,          -- ID de la sesión que se desea cerrar
+    @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
 
-SELECT @ERRORID, @ERRORDESCRIPCION;
-
+SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
 -------------------------------------------------------------------------------------
 --AGREGAR PRODUCTO
 DECLARE @IDRETURN INT;
@@ -486,9 +621,9 @@ DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
 EXEC SP_AGREGAR_PRODUCTO 
-    @NOMBRE = 'Café Colombiano', 
-    @DESCRIPCION = 'Café de alta calidad de Colombia', 
-    @PRECIO = 12.50, 
+    @NOMBRE = 'Capucchino', 
+    @DESCRIPCION = 'de alta calidad de Argentina', 
+    @PRECIO = 6.66, 
     @NOMBRE_CATEGORIA = 'Bebidas',
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
@@ -511,30 +646,50 @@ EXEC SP_ELIMINAR_PRODUCTO
 SELECT @IDRETURN_ELIMINAR AS ID, @ERRORID_ELIMINAR AS ErrorID, @ERRORDESCRIPCION_ELIMINAR AS ErrorDescripcion;
 -------------------------------------------------------------------------------------------------
 --ACTUALIZAR PRODUCTO
--- Variables para probar el procedimiento
+-- Declarar variables de salida
+DECLARE @RESULTADO NVARCHAR(100);
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+ 
+-- Ejecutar el procedimiento almacenado
+EXEC SP_ACTUALIZAR_PRODUCTO
+    @NOMBRE = 'Expresso',
+    @DESCRIPCION = 'cafe mucho RAM ',
+    @PRECIO = 1200.00,
+    @NOMBRE_CATEGORIA = 'Bebidas',
+    @RESULTADO = @RESULTADO OUTPUT,
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+ 
+-- Verificar los valores de salida
+SELECT @RESULTADO AS Resultado, @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
+	------------------------------------------------------------------------------
+--Actualizar Categoria
 DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
--- Llamar al procedimiento almacenado para actualizar un producto
-EXEC SP_ACTUALIZAR_PRODUCTO
-    @ID_PRODUCTO = 2,
-    @NOMBRE = 'cAFE ASFDESFGG',
-    @DESCRIPCION = 'SDFGGSDGDG',
-    @PRECIO = 19.99,
-    @NOMBRE_CATEGORIA = 'Bebidas',  -- Asegúrate de que esta categoría exista
+-- Ejecutar el procedimiento almacenado
+EXEC SP_ACTUALIZAR_CATEGORIA
+    @NOMBRE_ACTUAL = 'Maquinas',
+    @NUEVO_NOMBRE = 'Maquinas Nuevas',
+    @DESCRIPCION = 'Un café con más agua para un sabor aún más suave',
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
 
--- Mostrar los resultados de la ejecución
-SELECT 
-    @ERRORID AS ErrorID,
-    @ERRORDESCRIPCION AS ErrorDescripcion;
-
+-- Mostrar el resultado
+SELECT @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
 ------------------------------------insert-----------------------------------------
 --Insertar una categoría de ejemplo
-INSERT INTO Categorias (id_categoria, nombre, descripcion) 
-VALUES (1, 'Bebidas', 'Todas las bebidas disponibles');
+INSERT INTO Categorias (nombre, descripcion) 
+VALUES ('Bebidas', 'Todas las bebidas disponibles');
+
+DECLARE @IDRETURN INT, @ERRORID INT, @ERRORDESCRIPCION NVARCHAR(MAX);
+EXEC SP_INSERTAR_CATEGORIA 'Maquinas', 'Descripción de la categoría', @IDRETURN OUTPUT, @ERRORID OUTPUT, @ERRORDESCRIPCION OUTPUT;
+SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
+GO
 ------------------------------------SELECTS-----------------------------------------
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
 SELECT * FROM Productos;
+SELECT * FROM Categorias;
+
