@@ -26,6 +26,25 @@ GO
 
 -- Tablas --
 
+-- Tabla Categorias sin la columna id_producto
+CREATE TABLE Categorias (
+    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL UNIQUE,
+    descripcion NVARCHAR(100) NOT NULL
+);
+
+-- Tabla Productos con la columna id_categoria para la asignación directa
+CREATE TABLE Productos (
+    id_producto INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL,
+    descripcion NVARCHAR(MAX),
+    precio DECIMAL(18, 2) NOT NULL,
+    fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
+	nombre_categoria NVARCHAR(100),
+     FOREIGN KEY (nombre_categoria) REFERENCES Categorias(nombre)
+);
+
+-- Las demás tablas permanecen igual
 CREATE TABLE Usuarios (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
     cedula INT NOT NULL,
@@ -34,26 +53,6 @@ CREATE TABLE Usuarios (
     password VARCHAR(255) NOT NULL,
     fecha_registro DATETIME DEFAULT GETDATE() NOT NULL
 );
-
-CREATE TABLE Categorias (
-    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
-    nombre NVARCHAR(100) NOT NULL UNIQUE,
-    descripcion NVARCHAR(100) NOT NULL
-);
-
--- Crear la tabla Productos sin la clave foránea inicialmente
-CREATE TABLE Productos (
-    id_producto INT IDENTITY(1,1) PRIMARY KEY,
-    nombre NVARCHAR(100) NOT NULL,
-    descripcion NVARCHAR(MAX),
-    precio DECIMAL(18, 2) NOT NULL,
-    nombre_categoria NVARCHAR(100) NOT NULL, -- Cambiado para usar nombre en lugar de id_categoria
-    fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL
-);
-
-ALTER TABLE Productos
-ADD CONSTRAINT FK_Productos_Categorias FOREIGN KEY (nombre_categoria)
-REFERENCES Categorias (nombre);
 
 CREATE TABLE Inventario (
     id_inventario INT IDENTITY(1,1) PRIMARY KEY,
@@ -95,6 +94,8 @@ CREATE TABLE Sesiones (
     FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario) -- Corregido para usar el nombre correcto de la columna
 );
 GO
+
+
 
 
 --STORED PROCEDURES
@@ -504,42 +505,45 @@ GO
 
 USE BDProyectoWeb
 GO
-CREATE PROCEDURE SP_ACTUALIZAR_CATEGORIA
-(
-    @NOMBRE_ACTUAL NVARCHAR(100),
-    @NUEVO_NOMBRE NVARCHAR(100),
-    @DESCRIPCION NVARCHAR(100),
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
-)
+CREATE PROCEDURE ActualizarCategoria
+    @NOMBRE NVARCHAR(100),            -- Nombre de la categoría que se va a actualizar
+    @NUEVO_NOMBRE NVARCHAR(100),      -- Nuevo nombre de la categoría
+    @NUEVA_DESCRIPCION NVARCHAR(100), -- Nueva descripción de la categoría
+    @IDRETURN INT OUTPUT,             -- Salida del resultado del procedimiento
+    @ERRORID INT OUTPUT,              -- Salida del código de error
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
 AS
 BEGIN
     BEGIN TRY
-        -- Actualizar la categoría basada en el nombre actual
+        -- Actualizar la categoría con el nuevo nombre y descripción
         UPDATE Categorias
-        SET nombre = @NUEVO_NOMBRE, descripcion = @DESCRIPCION
-        WHERE nombre = @NOMBRE_ACTUAL;
-
-        -- Verificar si se actualizó alguna fila
+        SET nombre = @NUEVO_NOMBRE,
+            descripcion = @NUEVA_DESCRIPCION
+        WHERE nombre = @NOMBRE;
+        
+        -- Verificar si la actualización fue exitosa
         IF @@ROWCOUNT = 0
         BEGIN
-            -- Si no se actualizó ninguna fila, significa que el nombre actual no se encontró
+            SET @IDRETURN = 0;
             SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'No se encontró ninguna categoría con el nombre especificado.';
+            SET @ERRORDESCRIPCION = 'Categoría no encontrada o no actualizada';
         END
         ELSE
         BEGIN
-            -- No hay errores
+            SET @IDRETURN = 1;
             SET @ERRORID = 0;
-            SET @ERRORDESCRIPCION = 'Actualización exitosa.';
+            SET @ERRORDESCRIPCION = 'Actualización exitosa';
         END
     END TRY
     BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = 0;
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
-END
-GO
+END;
+
+
 
 --NO TOCAR
 --Pruebas
@@ -624,7 +628,7 @@ EXEC SP_AGREGAR_PRODUCTO
     @NOMBRE = 'Capucchino', 
     @DESCRIPCION = 'de alta calidad de Argentina', 
     @PRECIO = 6.66, 
-    @NOMBRE_CATEGORIA = 'Bebidas',
+    @NOMBRE_CATEGORIA = 'Bebidas Postman',
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -665,19 +669,19 @@ EXEC SP_ACTUALIZAR_PRODUCTO
 SELECT @RESULTADO AS Resultado, @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
 	------------------------------------------------------------------------------
 --Actualizar Categoria
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+DECLARE @IDRETURN INT, @ERRORID INT, @ERRORDESCRIPCION NVARCHAR(MAX);
 
--- Ejecutar el procedimiento almacenado
-EXEC SP_ACTUALIZAR_CATEGORIA
-    @NOMBRE_ACTUAL = 'Maquinas',
-    @NUEVO_NOMBRE = 'Maquinas Nuevas',
-    @DESCRIPCION = 'Un café con más agua para un sabor aún más suave',
+EXEC ActualizarCategoria
+    @NOMBRE = 'Bebidas',
+    @NUEVO_NOMBRE = 'Bebidas Premium',
+    @NUEVA_DESCRIPCION = 'Bebidas de alta gama',
+    @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
 
--- Mostrar el resultado
-SELECT @ERRORID AS ErrorID, @ERRORDESCRIPCION AS ErrorDescripcion;
+-- Verificar el resultado
+SELECT @IDRETURN, @ERRORID, @ERRORDESCRIPCION;
+
 ------------------------------------insert-----------------------------------------
 --Insertar una categoría de ejemplo
 INSERT INTO Categorias (nombre, descripcion) 
