@@ -38,7 +38,7 @@ CREATE TABLE Productos (
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
     descripcion NVARCHAR(MAX),
-    precio DECIMAL(18, 2) NOT NULL,
+    precio DECIMAL(18, 2) NOT NULL UNIQUE,
     fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
 	nombre_categoria NVARCHAR(100),
      FOREIGN KEY (nombre_categoria) REFERENCES Categorias(nombre)
@@ -61,27 +61,6 @@ CREATE TABLE Inventario (
     FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
 );
 
-CREATE TABLE Compras (
-    id_compra INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT,
-    fecha_compra DATETIME DEFAULT GETDATE(),
-    total DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
-);
-
-CREATE TABLE DetalleCompra (
-    id_detalle_compra INT IDENTITY(1,1) PRIMARY KEY,
-    id_compra INT,
-    id_producto INT,
-    id_usuario INT,
-    cantidad INT NOT NULL,
-    precio_unitario DECIMAL(10, 2) NOT NULL,
-    total DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
-);
-
 CREATE TABLE Sesiones (
     id BIGINT IDENTITY(1,1) PRIMARY KEY,
     sesion NVARCHAR(MAX) NOT NULL,
@@ -93,7 +72,47 @@ CREATE TABLE Sesiones (
     fecha_actualizacion DATETIME NOT NULL,
     FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario) -- Corregido para usar el nombre correcto de la columna
 );
+-- Tabla Carrito para almacenar los productos agregados antes de pagar
+CREATE TABLE Carrito (
+    id_carrito INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    nombre_producto NVARCHAR(100) NOT NULL,
+    cantidad INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
+);
+CREATE TABLE Tarjetas (
+    id_tarjeta INT IDENTITY(1,1) PRIMARY KEY,
+    numero_tarjeta NVARCHAR(20)UNIQUE, -- Cambiado a PRIMARY KEY para que pueda ser referenciado
+    id_usuario INT NOT NULL,
+    fecha_expiracion DATE NOT NULL,
+    nombre_titular NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+);
+
+-- Tabla Transacciones para almacenar la información de las compras realizadas
+CREATE TABLE Transacciones (
+    id_transaccion INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    numero_tarjeta NVARCHAR(20) NOT NULL,
+    fecha DATETIME DEFAULT GETDATE() NOT NULL,
+    total DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (numero_tarjeta) REFERENCES Tarjetas(numero_tarjeta) -- Usar el número de tarjeta para registrar la tarjeta utilizada
+);
+
+-- Tabla DetalleTransaccion para almacenar los detalles de los productos comprados en una transacción
+CREATE TABLE DetalleTransaccion (
+    id_detalle INT IDENTITY(1,1) PRIMARY KEY,
+    id_transaccion INT NOT NULL,
+    nombre_producto NVARCHAR(100) NOT NULL,
+    cantidad INT NOT NULL,
+    precio DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (id_transaccion) REFERENCES Transacciones(id_transaccion),
+    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
+);
 GO
+
 
 
 
@@ -730,9 +749,6 @@ GO
 
 USE BDProyectoWeb
 GO
-USE BDProyectoWeb
-GO
-
 CREATE PROCEDURE SP_CONSULTAR_INVENTARIO
 AS
 BEGIN
@@ -750,5 +766,44 @@ BEGIN
 END
 GO
 
+
+
 --------------------------------------------------------
 --Compras
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE InsertarDetalleCompra
+    @sesion NVARCHAR(MAX),
+    @nombre_producto NVARCHAR(100),
+    @cantidad_producto INT,
+    @precio_producto DECIMAL(18, 2),
+    @total_compra DECIMAL(10, 2),
+    @fecha_compra DATETIME = NULL
+AS
+BEGIN
+    -- Si no se proporciona la fecha de compra, se establece a la fecha actual
+    IF @fecha_compra IS NULL
+        SET @fecha_compra = GETDATE();
+ 
+    -- Obtener el ID del usuario basado en la sesión
+    DECLARE @usuario INT;
+    SELECT @usuario = usuario FROM Sesiones WHERE sesion = @sesion;
+ 
+    -- Verificar si se obtuvo el usuario correctamente
+    IF @usuario IS NULL
+    BEGIN
+        RAISERROR('Sesión no válida o no encontrada', 16, 1);
+        RETURN;
+    END
+ 
+    -- Insertar el nuevo detalle de compra
+    INSERT INTO DetalleCompra (nombre_producto, cantidad_producto, usuario, precio_producto, total_compra, fecha_compra)
+    VALUES (@nombre_producto, @cantidad_producto, @usuario, @precio_producto, @total_compra, @fecha_compra);
+ 
+    -- Obtener el nombre del usuario basado en su ID
+    DECLARE @nombre_usuario NVARCHAR(100);
+    SELECT @nombre_usuario = nombre FROM Usuarios WHERE id_usuario = @usuario;
+ 
+    -- Devolver el nombre del usuario
+    SELECT @nombre_usuario AS NombreUsuario;
+END;
