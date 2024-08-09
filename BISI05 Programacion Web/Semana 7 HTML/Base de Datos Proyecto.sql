@@ -730,24 +730,25 @@ GO
 
 USE BDProyectoWeb
 GO
+USE BDProyectoWeb
+GO
+
 CREATE PROCEDURE SP_CONSULTAR_INVENTARIO
-(
-    @NOMBRE_PRODUCTO NVARCHAR(100) -- Parámetro para el nombre del producto
-)
 AS
 BEGIN
-    -- Verificar si se proporcionó un nombre de producto
-    IF @NOMBRE_PRODUCTO IS NULL
-    BEGIN
-        RAISERROR('El nombre del producto es obligatorio.', 16, 1);
-        RETURN;
-    END
- 
-    -- Consultar el inventario basado en el nombre del producto
-    SELECT i.id_inventario, i.nombre_producto, i.cantidad
-    FROM Inventario i
-    WHERE i.nombre_producto = @NOMBRE_PRODUCTO;
+    BEGIN TRY
+        -- Seleccionar todos los registros de la tabla Inventario
+        SELECT id_inventario, nombre_producto, cantidad
+        FROM Inventario;
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SELECT 
+            ERROR_NUMBER() AS ErrorNumber,
+            ERROR_MESSAGE() AS ErrorMessage;
+    END CATCH
 END
 GO
+
 --------------------------------------------------------
 --Compras
