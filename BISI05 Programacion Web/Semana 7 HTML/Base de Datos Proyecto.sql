@@ -33,18 +33,16 @@ CREATE TABLE Categorias (
     descripcion NVARCHAR(100) NOT NULL
 );
 
--- Tabla Productos con la columna id_categoria para la asignación directa
 CREATE TABLE Productos (
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
     descripcion NVARCHAR(MAX),
-    precio DECIMAL(18, 2) NOT NULL UNIQUE,
+    precio_producto DECIMAL(18, 2) NOT NULL UNIQUE,
     fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
 	nombre_categoria NVARCHAR(100),
-     FOREIGN KEY (nombre_categoria) REFERENCES Categorias(nombre)
+    FOREIGN KEY (nombre_categoria) REFERENCES Categorias(nombre)
 );
 
--- Las demás tablas permanecen igual
 CREATE TABLE Usuarios (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
     cedula INT NOT NULL UNIQUE,
@@ -64,54 +62,63 @@ CREATE TABLE Inventario (
 CREATE TABLE Sesiones (
     id BIGINT IDENTITY(1,1) PRIMARY KEY,
     sesion NVARCHAR(MAX) NOT NULL,
-    usuario INT NOT NULL, -- Cambiado de BIGINT a INT para que coincida con id_usuario
+    usuario INT NOT NULL, 
     origen NVARCHAR(MAX) NULL,
     fecha_inicio DATETIME NOT NULL,
     fecha_final DATETIME NULL,
     estado INT NOT NULL,
     fecha_actualizacion DATETIME NOT NULL,
-    FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario) -- Corregido para usar el nombre correcto de la columna
+    FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario) 
 );
--- Tabla Carrito para almacenar los productos agregados antes de pagar
+
 CREATE TABLE Carrito (
     id_carrito INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NOT NULL,
+    cedula INT NOT NULL,
     nombre_producto NVARCHAR(100) NOT NULL,
     cantidad INT NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
+	precio_producto DECIMAL(18, 2) NOT NULL,
+	precio_total AS (cantidad * precio_producto) PERSISTED UNIQUE,
+    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula),
+    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre),
+	FOREIGN KEY (precio_producto) REFERENCES Productos(precio_producto)
 );
 CREATE TABLE Tarjetas (
     id_tarjeta INT IDENTITY(1,1) PRIMARY KEY,
-    numero_tarjeta NVARCHAR(20)UNIQUE, -- Cambiado a PRIMARY KEY para que pueda ser referenciado
-    id_usuario INT NOT NULL,
+    numero_tarjeta INT NOT NULL UNIQUE, 
+    cedula INT NOT NULL,
     fecha_expiracion DATE NOT NULL,
-    nombre_titular NVARCHAR(100) NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+	CVV INT NOT NULL UNIQUE,
+    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula)
 );
 
--- Tabla Transacciones para almacenar la información de las compras realizadas
-CREATE TABLE Transacciones (
-    id_transaccion INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    numero_tarjeta NVARCHAR(20) NOT NULL,
+CREATE TABLE Compra (
+    id_compra INT IDENTITY(1,1) PRIMARY KEY,  
+    cedula INT NOT NULL,
+    numero_tarjeta INT NOT NULL,
+    CVV INT NOT NULL,
     fecha DATETIME DEFAULT GETDATE() NOT NULL,
-    total DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    FOREIGN KEY (numero_tarjeta) REFERENCES Tarjetas(numero_tarjeta) -- Usar el número de tarjeta para registrar la tarjeta utilizada
+    precio_total DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula),
+    FOREIGN KEY (numero_tarjeta) REFERENCES Tarjetas(numero_tarjeta),
+    FOREIGN KEY (CVV) REFERENCES Tarjetas(CVV),
+	FOREIGN KEY (precio_total) REFERENCES Carrito(precio_total),
 );
 
--- Tabla DetalleTransaccion para almacenar los detalles de los productos comprados en una transacción
-CREATE TABLE DetalleTransaccion (
-    id_detalle INT IDENTITY(1,1) PRIMARY KEY,
-    id_transaccion INT NOT NULL,
+
+CREATE TABLE Factura (
+    id_factura INT IDENTITY(1,1) PRIMARY KEY,
+    cedula INT NOT NULL,
+    id_compra INT NOT NULL,
     nombre_producto NVARCHAR(100) NOT NULL,
     cantidad INT NOT NULL,
-    precio DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (id_transaccion) REFERENCES Transacciones(id_transaccion),
-    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
+    precio_producto DECIMAL(18, 2) NOT NULL,
+    precio_total DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),  -- FK: Relación con Compra
+    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre),  -- FK: Relación con Productos nombre
+    FOREIGN KEY (precio_producto) REFERENCES Productos(precio),  -- FK: Relación con Productos preciodel producto
+	FOREIGN KEY (precio_total) REFERENCES Carrito(precio_total),
+    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula)  -- FK: Relación con Usuarios
 );
-GO
 
 
 
