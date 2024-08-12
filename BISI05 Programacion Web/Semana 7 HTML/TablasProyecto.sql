@@ -1,23 +1,4 @@
-USE master
-GO
-
-IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'BDProyectoWeb')
-DROP DATABASE BDProyectoWeb
-GO
-
-CREATE DATABASE BDProyectoWeb
-GO
-
-USE BDProyectoWeb
-GO
-ALTER AUTHORIZATION ON DATABASE::BDProyectoWeb TO sa
-SET DATEFORMAT dmy
-SET LANGUAGE spanish
-
-GO
-
 -- Tablas --
-
 CREATE TABLE Categorias (
     id_categoria INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
