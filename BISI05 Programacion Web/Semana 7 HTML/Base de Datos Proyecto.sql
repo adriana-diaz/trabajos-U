@@ -5,28 +5,19 @@ IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'BDProyectoWeb
 DROP DATABASE BDProyectoWeb
 GO
 
-/** SE CREA LA BASE DE DATOS **/
 CREATE DATABASE BDProyectoWeb
 GO
 
-/** SE SELECCIONA LA BASE DE DATOS CREADA **/
 USE BDProyectoWeb
 GO
-
-/** INSTRUCCIÓN QUE PERMITE CREAR LOS DIAGRAMAS **/
 ALTER AUTHORIZATION ON DATABASE::BDProyectoWeb TO sa
-
-/* Establece el formato de la fecha en día/mes/año, 
-cualquiera de las dos */
 SET DATEFORMAT dmy
 SET LANGUAGE spanish
-/* Instrucción que indica que la próxima consulta 
-se ejecutará hasta que termine de ejecutarse la sentencia anterior */
+
 GO
 
 -- Tablas --
 
--- Tabla Categorias sin la columna id_producto
 CREATE TABLE Categorias (
     id_categoria INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
@@ -35,12 +26,13 @@ CREATE TABLE Categorias (
 
 CREATE TABLE Productos (
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
+	id_categoria INT,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
     descripcion NVARCHAR(MAX),
-    precio_producto DECIMAL(18, 2) NOT NULL UNIQUE,
+    precio_producto DECIMAL(18, 2) NOT NULL,
     fecha_agregado DATETIME DEFAULT GETDATE() NOT NULL,
-	nombre_categoria NVARCHAR(100),
-    FOREIGN KEY (nombre_categoria) REFERENCES Categorias(nombre)
+	cantidad INT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria)
 );
 
 CREATE TABLE Usuarios (
@@ -50,13 +42,6 @@ CREATE TABLE Usuarios (
     email NVARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     fecha_registro DATETIME DEFAULT GETDATE() NOT NULL
-);
-
-CREATE TABLE Inventario (
-    id_inventario INT IDENTITY(1,1) PRIMARY KEY,
-    cantidad INT NOT NULL,
-	nombre_producto NVARCHAR(100),
-    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre)
 );
 
 CREATE TABLE Sesiones (
@@ -73,56 +58,65 @@ CREATE TABLE Sesiones (
 
 CREATE TABLE Carrito (
     id_carrito INT IDENTITY(1,1) PRIMARY KEY,
-    cedula INT NOT NULL,
-    nombre_producto NVARCHAR(100) NOT NULL,
-    cantidad INT NOT NULL,
-	precio_producto DECIMAL(18, 2) NOT NULL,
-	precio_total AS (cantidad * precio_producto) PERSISTED UNIQUE,
-    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula),
-    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre),
-	FOREIGN KEY (precio_producto) REFERENCES Productos(precio_producto)
+	id_usuario INT NOT NULL,
+	id_producto INT NOT NULL,
+	FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
 );
+
+
 CREATE TABLE Tarjetas (
     id_tarjeta INT IDENTITY(1,1) PRIMARY KEY,
     numero_tarjeta INT NOT NULL UNIQUE, 
-    cedula INT NOT NULL,
     fecha_expiracion DATE NOT NULL,
 	CVV INT NOT NULL UNIQUE,
-    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula)
+	id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
 );
 
 CREATE TABLE Compra (
     id_compra INT IDENTITY(1,1) PRIMARY KEY,  
-    cedula INT NOT NULL,
-    numero_tarjeta INT NOT NULL,
-    CVV INT NOT NULL,
     fecha DATETIME DEFAULT GETDATE() NOT NULL,
     precio_total DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula),
-    FOREIGN KEY (numero_tarjeta) REFERENCES Tarjetas(numero_tarjeta),
-    FOREIGN KEY (CVV) REFERENCES Tarjetas(CVV),
-	FOREIGN KEY (precio_total) REFERENCES Carrito(precio_total),
+	id_usuario INT NOT NULL,
+	id_producto INT NOT NULL,
+	id_tarjeta INT NOT NULL,
+	--foreign keys
+	FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+	FOREIGN KEY (id_tarjeta) REFERENCES Tarjetas(id_tarjeta)
 );
 
+CREATE TABLE EncabezadoFactura (
+   id_encabezadoFactura INT IDENTITY(1,1) PRIMARY KEY, 
+   fecha DATETIME DEFAULT GETDATE() NOT NULL,
+   --
+   id_usuario INT NOT NULL,
+   id_compra INT NOT NULL,
+   --
+   FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+   FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),
+);
+
+CREATE TABLE DetalleFactura (
+   id_detalleFactura INT IDENTITY(1,1) PRIMARY KEY,
+   --
+   id_encabezadoFactura INT NOT NULL,
+   id_producto INT NOT NULL,
+   id_compra INT NOT NULL,
+   FOREIGN KEY (id_encabezadoFactura) REFERENCES encabezadoFactura(id_encabezadoFactura),
+   FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+   FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),
+);
 
 CREATE TABLE Factura (
-    id_factura INT IDENTITY(1,1) PRIMARY KEY,
-    cedula INT NOT NULL,
-    id_compra INT NOT NULL,
-    nombre_producto NVARCHAR(100) NOT NULL,
-    cantidad INT NOT NULL,
-    precio_producto DECIMAL(18, 2) NOT NULL,
-    precio_total DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),  -- FK: Relación con Compra
-    FOREIGN KEY (nombre_producto) REFERENCES Productos(nombre),  -- FK: Relación con Productos nombre
-    FOREIGN KEY (precio_producto) REFERENCES Productos(precio),  -- FK: Relación con Productos preciodel producto
-	FOREIGN KEY (precio_total) REFERENCES Carrito(precio_total),
-    FOREIGN KEY (cedula) REFERENCES Usuarios(cedula)  -- FK: Relación con Usuarios
+   id_factura INT IDENTITY(1,1) PRIMARY KEY, 
+   --
+   id_detalleFactura  INT NOT NULL,
+   id_encabezadoFactura  INT NOT NULL,
+   FOREIGN KEY (id_encabezadoFactura) REFERENCES EncabezadoFactura(id_encabezadoFactura),
+   FOREIGN KEY (id_detalleFactura) REFERENCES DetalleFactura(id_detalleFactura),
 );
-
-
-
-
 
 --STORED PROCEDURES
 USE BDProyectoWeb
@@ -354,10 +348,11 @@ USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_AGREGAR_PRODUCTO
 (
-    @NOMBRE NVARCHAR(100),
-    @DESCRIPCION NVARCHAR(MAX),
-    @PRECIO DECIMAL(18, 2),
-    @NOMBRE_CATEGORIA NVARCHAR(100),
+    @nombre_categoria NVARCHAR(100),
+    @nombre NVARCHAR(100),
+    @descripcion NVARCHAR(MAX),
+    @precio_producto DECIMAL(18, 2),
+    @cantidad INT = NULL,  -- Parámetro opcional
     @IDRETURN INT OUTPUT,
     @ERRORID INT OUTPUT,
     @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
@@ -365,149 +360,167 @@ CREATE PROCEDURE SP_AGREGAR_PRODUCTO
 AS
 BEGIN
     BEGIN TRY
-        -- Inicializar valores de salida
-        SET @IDRETURN = 0;
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
+        -- Verificar si la categoría existe y obtener el ID
+        DECLARE @id_categoria INT;
 
-        -- Verificar si la categoría es válida
-        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NOMBRE_CATEGORIA)
+        SELECT @id_categoria = id_categoria
+        FROM Categorias
+        WHERE nombre = @nombre_categoria;
+
+        IF @id_categoria IS NOT NULL
         BEGIN
             -- Insertar el nuevo producto
-            INSERT INTO Productos (nombre, descripcion, precio, nombre_categoria, fecha_agregado)
-            VALUES (@NOMBRE, @DESCRIPCION, @PRECIO, @NOMBRE_CATEGORIA, GETDATE());
+            INSERT INTO Productos 
+            (
+                id_categoria,
+                nombre,
+                descripcion,
+                precio_producto,
+                cantidad
+            )
+            VALUES
+            (
+                @id_categoria,
+                @nombre,
+                @descripcion,
+                @precio_producto,
+                @cantidad
+            );
 
-            -- Obtener el ID del nuevo producto
+            -- Devolver el ID del nuevo producto
             SET @IDRETURN = SCOPE_IDENTITY();
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = '';
         END
         ELSE
         BEGIN
-            -- Categoría no válida
+            -- La categoría no existe, devolver error
             SET @IDRETURN = -1;
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
+            SET @ERRORID = 1; -- Categoría no existe
+            SET @ERRORDESCRIPCION = 'Categoría especificada no existe.';
         END
     END TRY
     BEGIN CATCH
-        -- Manejo de errores
+        -- Capturar errores y devolver información sobre el error
         SET @IDRETURN = -1;
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR FINAL
 
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_ELIMINAR_PRODUCTO
 (
-    @NOMBRE NVARCHAR(100),            -- Nombre del producto a eliminar
-    @IDRETURN INT OUTPUT,             -- Salida del resultado del procedimiento
-    @ERRORID INT OUTPUT,              -- Salida del código de error
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
+    @nombre NVARCHAR(100),
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
 )
 AS
 BEGIN
     BEGIN TRY
-        -- Inicializar valores de salida
-        SET @IDRETURN = 1;
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
-
         -- Verificar si el producto existe
-        IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE)
+        IF EXISTS (SELECT * FROM Productos WHERE nombre = @nombre)
         BEGIN
             -- Eliminar el producto
             DELETE FROM Productos
-            WHERE nombre = @NOMBRE;
+            WHERE nombre = @nombre;
 
-            -- Confirmar la eliminación
-            SET @IDRETURN = 1; -- Éxito
+            -- Devolver el ID del producto eliminado (si es necesario, si no se puede omitir)
+            -- Aquí puedes usar un SELECT para obtener el ID del producto eliminado si es necesario
+            SET @IDRETURN = 0; -- Indica éxito
+            SET @ERRORID = 0;
             SET @ERRORDESCRIPCION = 'Producto eliminado exitosamente.';
         END
         ELSE
         BEGIN
-            -- Producto no encontrado
-            SET @IDRETURN = 0; -- Error
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
+            -- El producto no existe, devolver error
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1; -- Producto no existe
+            SET @ERRORDESCRIPCION = 'El producto especificado no existe.';
         END
     END TRY
     BEGIN CATCH
-        -- Manejo de errores
-        SET @IDRETURN = 0; -- Error
+        -- Capturar errores y devolver información sobre el error
+        SET @IDRETURN = -1;
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR FINAL
 
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE SP_ACTUALIZAR_PRODUCTO
 (
-    @NOMBRE_ORIGINAL NVARCHAR(100),     -- Nombre original del producto que se va a actualizar
-    @NUEVO_NOMBRE NVARCHAR(100),        -- Nuevo nombre del producto
-    @NUEVA_DESCRIPCION NVARCHAR(MAX),   -- Nueva descripción del producto
-    @NUEVO_PRECIO DECIMAL(18, 2),       -- Nuevo precio del producto
-    @NUEVO_NOMBRE_CATEGORIA NVARCHAR(100), -- Nuevo nombre de la categoría
-    @IDRETURN INT OUTPUT,               -- Salida del resultado del procedimiento
-    @ERRORID INT OUTPUT,                -- Salida del código de error
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT -- Salida de la descripción del error
+    @nombre_actual NVARCHAR(100),  -- Nombre actual del producto a actualizar
+    @nuevo_nombre NVARCHAR(100),   -- Nuevo nombre del producto
+    @descripcion NVARCHAR(MAX),    -- Nueva descripción del producto
+    @precio_producto DECIMAL(18, 2), -- Nuevo precio del producto
+    @cantidad INT,                 -- Nueva cantidad del producto
+    @nombre_categoria NVARCHAR(100), -- Nuevo nombre de la categoría
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
 )
 AS
 BEGIN
     BEGIN TRY
-        -- Inicializar valores de salida
-        SET @IDRETURN = 1;
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
+        -- Obtener el id_categoria basado en el nombre de la categoría
+        DECLARE @id_categoria INT;
 
-        -- Verificar si la nueva categoría es válida
-        IF EXISTS (SELECT 1 FROM Categorias WHERE nombre = @NUEVO_NOMBRE_CATEGORIA)
+        SELECT @id_categoria = id_categoria
+        FROM Categorias
+        WHERE nombre = @nombre_categoria;
+
+        IF @id_categoria IS NULL
         BEGIN
-            -- Verificar si el producto original existe
-            IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE_ORIGINAL)
-            BEGIN
-                -- Actualizar el producto
-                UPDATE Productos
-                SET nombre = @NUEVO_NOMBRE,
-                    descripcion = @NUEVA_DESCRIPCION,
-                    precio = @NUEVO_PRECIO,
-                    nombre_categoria = @NUEVO_NOMBRE_CATEGORIA
-                WHERE nombre = @NOMBRE_ORIGINAL;
+            -- La categoría no existe, devolver error
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1; -- Categoría no existe
+            SET @ERRORDESCRIPCION = 'Categoría especificada no existe.';
+            RETURN;
+        END
 
-                -- Confirmar la actualización
-                SET @IDRETURN = 1; -- Éxito
-                SET @ERRORDESCRIPCION = 'Producto actualizado exitosamente.';
-            END
-            ELSE
-            BEGIN
-                -- Producto no encontrado
-                SET @IDRETURN = 0; -- Error
-                SET @ERRORID = 2;
-                SET @ERRORDESCRIPCION = 'ERROR: Producto no encontrado.';
-            END
+        -- Verificar si el producto existe
+        IF EXISTS (SELECT * FROM Productos WHERE nombre = @nombre_actual)
+        BEGIN
+            -- Actualizar el producto
+            UPDATE Productos
+            SET
+                nombre = @nuevo_nombre,
+                descripcion = @descripcion,
+                precio_producto = @precio_producto,
+                cantidad = @cantidad,
+                id_categoria = @id_categoria
+            WHERE nombre = @nombre_actual;
+
+            -- Devolver éxito
+            SET @IDRETURN = 0;
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = 'Producto actualizado exitosamente.';
         END
         ELSE
         BEGIN
-            -- Categoría no válida
-            SET @IDRETURN = 0; -- Error
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR: Categoría no válida.';
+            -- El producto no existe, devolver error
+            SET @IDRETURN = -1;
+            SET @ERRORID = 2; -- Producto no existe
+            SET @ERRORDESCRIPCION = 'El producto especificado no existe.';
         END
     END TRY
     BEGIN CATCH
-        -- Manejo de errores
-        SET @IDRETURN = 0; -- Error
+        -- Capturar errores y devolver información sobre el error
+        SET @IDRETURN = -1;
         SET @ERRORID = ERROR_NUMBER();
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR final
 
 --------------------------------------------------------
 USE BDProyectoWeb
@@ -536,7 +549,7 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR final
 USE BDProyectoWeb
 GO
 CREATE PROCEDURE ActualizarCategoria
@@ -576,11 +589,11 @@ BEGIN
         SET @ERRORDESCRIPCION = ERROR_MESSAGE();
     END CATCH
 END;
-
+GO
+--NO TOCAR final
 
 USE BDProyectoWeb
 GO
---NO TOCAR
 CREATE PROCEDURE SP_ELIMINAR_CATEGORIA
 (
     @NOMBRE NVARCHAR(100),         -- Nombre de la categoría que se va a eliminar
@@ -619,198 +632,25 @@ BEGIN
     END CATCH
 END
 GO
---NO TOCAR
+--NO TOCAR final
 ---------------------------------------------------------
---inventario
-USE BDProyectoWeb
-GO
-CREATE PROCEDURE SP_INSERTAR_INVENTARIO
-(
-    @NOMBRE_PRODUCTO NVARCHAR(100),
-    @CANTIDAD INT,
-    @IDRETURN INT OUTPUT,
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
-)
-AS
-BEGIN
-    BEGIN TRY
-        -- Inicializar valores de salida
-        SET @IDRETURN = 0;
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
- 
-        -- Verificar si el producto existe basado en su nombre
-        IF EXISTS (SELECT 1 FROM Productos WHERE nombre = @NOMBRE_PRODUCTO)
-        BEGIN
-            -- Insertar un nuevo registro en Inventario
-            INSERT INTO Inventario (nombre_producto, cantidad)
-            VALUES (@NOMBRE_PRODUCTO, @CANTIDAD);
- 
-            -- Obtener el ID del nuevo registro
-            SET @IDRETURN = SCOPE_IDENTITY();
-        END
-        ELSE
-        BEGIN
-            -- Producto no encontrado
-            SET @IDRETURN = -1;
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
-        END
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        SET @IDRETURN = -1;
-        SET @ERRORID = ERROR_NUMBER();
-        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
-    END CATCH
-END
-GO
-
-USE BDProyectoWeb
-GO
-CREATE PROCEDURE SP_ACTUALIZAR_INVENTARIO
-(
-    @NOMBRE_PRODUCTO NVARCHAR(100),
-    @CANTIDAD INT,
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
-)
-AS
-BEGIN
-    BEGIN TRY
-        -- Inicializar valores de salida
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
-        -- Obtener el ID del producto basado en su nombre
-        DECLARE @ID_PRODUCTO INT;
-        SELECT @ID_PRODUCTO = id_producto FROM Productos WHERE nombre = @NOMBRE_PRODUCTO;
- 
-        -- Verificar si el producto existe
-        IF @ID_PRODUCTO IS NOT NULL
-        BEGIN
-            -- Actualizar el inventario
-            UPDATE Inventario
-            SET cantidad = @CANTIDAD
-            WHERE nombre_producto = @NOMBRE_PRODUCTO;
-        END
-        ELSE
-        BEGIN
-            -- Producto no encontrado
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
-        END
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        SET @ERRORID = ERROR_NUMBER();
-        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
-    END CATCH
-END
-GO
-
-USE BDProyectoWeb
-GO
-CREATE PROCEDURE SP_ELIMINAR_INVENTARIO
-(
-    @NOMBRE_PRODUCTO NVARCHAR(100),
-    @IDRETURN INT OUTPUT,
-    @ERRORID INT OUTPUT,
-    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
-)
-AS
-BEGIN
-    BEGIN TRY
-        -- Inicializar valores de salida
-        SET @IDRETURN = 0;
-        SET @ERRORID = 0;
-        SET @ERRORDESCRIPCION = '';
- 
-        -- Obtener el ID del producto basado en su nombre
-        DECLARE @ID_PRODUCTO INT;
-        SELECT @ID_PRODUCTO = id_producto FROM Productos WHERE nombre = @NOMBRE_PRODUCTO;
- 
-        -- Verificar si el producto existe
-        IF @ID_PRODUCTO IS NOT NULL
-        BEGIN
-            -- Eliminar el registro del inventario
-            DELETE FROM Inventario WHERE nombre_producto = @NOMBRE_PRODUCTO;
-            SET @IDRETURN = @ID_PRODUCTO;
-        END
-        ELSE
-        BEGIN
-            -- Producto no encontrado
-            SET @IDRETURN = -1;
-            SET @ERRORID = 1;
-            SET @ERRORDESCRIPCION = 'ERROR DESDE BD: PRODUCTO NO ENCONTRADO';
-        END
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        SET @IDRETURN = -1;
-        SET @ERRORID = ERROR_NUMBER();
-        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
-    END CATCH
-END
-GO
-
-USE BDProyectoWeb
-GO
-CREATE PROCEDURE SP_CONSULTAR_INVENTARIO
-AS
-BEGIN
-    BEGIN TRY
-        -- Seleccionar todos los registros de la tabla Inventario
-        SELECT id_inventario, nombre_producto, cantidad
-        FROM Inventario;
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        SELECT 
-            ERROR_NUMBER() AS ErrorNumber,
-            ERROR_MESSAGE() AS ErrorMessage;
-    END CATCH
-END
-GO
-
-
-
---------------------------------------------------------
 --Compras
 USE BDProyectoWeb
 GO
-CREATE PROCEDURE InsertarDetalleCompra
-    @sesion NVARCHAR(MAX),
-    @nombre_producto NVARCHAR(100),
-    @cantidad_producto INT,
-    @precio_producto DECIMAL(18, 2),
-    @total_compra DECIMAL(10, 2),
-    @fecha_compra DATETIME = NULL
-AS
-BEGIN
-    -- Si no se proporciona la fecha de compra, se establece a la fecha actual
-    IF @fecha_compra IS NULL
-        SET @fecha_compra = GETDATE();
- 
-    -- Obtener el ID del usuario basado en la sesión
-    DECLARE @usuario INT;
-    SELECT @usuario = usuario FROM Sesiones WHERE sesion = @sesion;
- 
-    -- Verificar si se obtuvo el usuario correctamente
-    IF @usuario IS NULL
-    BEGIN
-        RAISERROR('Sesión no válida o no encontrada', 16, 1);
-        RETURN;
-    END
- 
-    -- Insertar el nuevo detalle de compra
-    INSERT INTO DetalleCompra (nombre_producto, cantidad_producto, usuario, precio_producto, total_compra, fecha_compra)
-    VALUES (@nombre_producto, @cantidad_producto, @usuario, @precio_producto, @total_compra, @fecha_compra);
- 
-    -- Obtener el nombre del usuario basado en su ID
-    DECLARE @nombre_usuario NVARCHAR(100);
-    SELECT @nombre_usuario = nombre FROM Usuarios WHERE id_usuario = @usuario;
- 
-    -- Devolver el nombre del usuario
-    SELECT @nombre_usuario AS NombreUsuario;
-END;
+SELECT 
+    C.id_carrito,
+    U.id_usuario,
+    U.nombre AS nombre_usuario,
+    P.id_producto,
+    P.nombre AS nombre_producto,
+    P.descripcion AS descripcion_producto,
+    P.precio_producto,
+    C.id_usuario,
+    C.id_producto
+FROM 
+    Carrito C
+FULL JOIN 
+    Usuarios U ON C.id_usuario = U.id_usuario
+FULL JOIN 
+    Productos P ON C.id_producto = P.id_producto;
+GO
