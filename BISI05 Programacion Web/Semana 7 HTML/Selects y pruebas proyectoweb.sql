@@ -8,10 +8,10 @@ DECLARE @ERRORID INT;
 DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
 EXEC SP_INGRESAR_USUARIO
-    @CEDULA = 1194256555,          -- Cédula del usuario (debe ser única)
-    @NOMBRE = 'fito diaz',
-    @EMAIL = 'fito@gmail.com',
-    @PASSWORD = 'fitolol',
+    @CEDULA = 119320150,          -- Cédula del usuario (debe ser única)
+    @NOMBRE = 'adriana diaz',
+    @EMAIL = 'adri@gmail.com',
+    @PASSWORD = '3003',
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -76,7 +76,7 @@ SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDES
 --INSERTS CATEGORIAS
 --Insertar una categoría de ejemplo
 INSERT INTO Categorias (nombre, descripcion) 
-VALUES ('Prueba', 'Todas las bebidas disponibles');
+VALUES ('Maquinas', 'Todas las bebidas disponibles');
 
 --AGREGAR PRODUCTO LISTO!!!!!!!!
 -- Declarar variables de salida
@@ -87,10 +87,10 @@ DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 -- Llamar al procedimiento almacenado
 EXEC SP_AGREGAR_PRODUCTO
     @nombre_categoria = 'Maquinas',  -- Nombre de la categoría existente
-    @nombre = 'Choreador',
-    @descripcion = 'Alta calidad',
-    @precio_producto = 7500,
-    @cantidad = 70,
+    @nombre = 'Coffee Maker',
+    @descripcion = 'de muy alta calidad',
+    @precio_producto = 10000,
+    @cantidad = 10,
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -172,72 +172,6 @@ EXEC SP_ELIMINAR_CATEGORIA
 
 SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
 ----------------------------------------------------------------------------
---Consultar Inventario 
-EXEC SP_CONSULTAR_INVENTARIO
-    @NOMBRE_PRODUCTO = 'Capucchino';  -- Reemplaza con el nombre del producto que deseas consultar
-GO
---ingresar
--- Declarar las variables de salida
-DECLARE @IDRETURN INT;
-DECLARE @ERRORID INT;
-DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
- 
--- Ejecutar el procedimiento
-EXEC SP_INSERTAR_INVENTARIO 
-    @NOMBRE_PRODUCTO = 'Latte',  -- Reemplaza con el nombre del producto
-    @CANTIDAD = 100,                       -- Reemplaza con la cantidad que deseas insertar
-    @IDRETURN = @IDRETURN OUTPUT,
-    @ERRORID = @ERRORID OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
- 
--- Mostrar los resultados
-SELECT 
-    @IDRETURN AS IDRETURN, 
-    @ERRORID AS ErrorID, 
-    @ERRORDESCRIPCION AS ErrorDescripcion;
-GO
---ACTUALIZAR
--- Declarar las variables de salida
-DECLARE @ERRORID_UPDATE INT;
-DECLARE @ERRORDESCRIPCION_UPDATE NVARCHAR(MAX);
- 
--- Ejecutar el procedimiento
-EXEC SP_ACTUALIZAR_INVENTARIO 
-    @NOMBRE_PRODUCTO = 'Capucchino',  -- Reemplaza con el nombre del producto
-    @CANTIDAD = 150,                       -- Reemplaza con la cantidad que deseas actualizar
-    @ERRORID = @ERRORID_UPDATE OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION_UPDATE OUTPUT;
- 
--- Mostrar los resultados
-SELECT 
-    @ERRORID_UPDATE AS ErrorID, 
-    @ERRORDESCRIPCION_UPDATE AS ErrorDescripcion;
-GO
---eliminar
--- Declarar las variables de salida
-DECLARE @IDRETURN_DELETE INT;
-DECLARE @ERRORID_DELETE INT;
-DECLARE @ERRORDESCRIPCION_DELETE NVARCHAR(MAX);
- 
--- Ejecutar el procedimiento
-EXEC SP_ELIMINAR_INVENTARIO
-    @NOMBRE_PRODUCTO = 'Capucchino',  -- Reemplaza con el nombre del producto
-    @IDRETURN = @IDRETURN_DELETE OUTPUT,
-    @ERRORID = @ERRORID_DELETE OUTPUT,
-    @ERRORDESCRIPCION = @ERRORDESCRIPCION_DELETE OUTPUT;
- 
--- Mostrar los resultados
-SELECT 
-    @IDRETURN_DELETE AS IDRETURN, 
-    @ERRORID_DELETE AS ErrorID, 
-    @ERRORDESCRIPCION_DELETE AS ErrorDescripcion;
-GO
-
---consultar
-EXEC SP_CONSULTAR_INVENTARIO
-    @NOMBRE_PRODUCTO = 'Capucchino';  -- Reemplaza con el nombre del producto que deseas consultar
-GO
---------------------------------------------------------------------------------
 --Compras
 -- Ejecutar el procedimiento SP_INSERTAR_COMPRA
 -- Declarar las variables necesarias
@@ -259,12 +193,63 @@ EXEC InsertarDetalleCompra
     @precio_producto = @precio_producto,
     @total_compra = @total_compra,
     @fecha_compra = @fecha_compra;
+	----------------------------------
+	--version rapida
+INSERT INTO Carrito (id_usuario, id_producto) VALUES (1, 1);  -- Usuario 1 compra Producto 1
 
+--version por el nombre del producto
+DECLARE @IDRETURN INT,
+        @ERRORID INT,
+        @ERRORDESCRIPCION NVARCHAR(MAX);
+
+EXEC [dbo].[SP_AGREGAR_PRODUCTO_AL_CARRITO] 
+    @id_usuario = 1,
+    @nombre_producto = 'Expresso Doble',
+    @IDRETURN = @IDRETURN OUTPUT,
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
+-- Verificar el resultado
+SELECT @IDRETURN AS ID_CARRITO, 
+       @ERRORID AS ERROR_ID, 
+       @ERRORDESCRIPCION AS ERROR_DESCRIPCION;
+------------------------------------------------------------------------------------
+-- Ejecutar el procedimiento almacenado para probarlo
+EXEC SP_INGRESAR_TARJETA
+    @numero_tarjeta = 545454545, -- Reemplaza con un número de tarjeta válido para prueba
+    @fecha_expiracion = '2025-12-31', -- Reemplaza con una fecha de expiración válida
+    @CVV = 963, -- Reemplaza con un CVV válido para prueba
+    @id_usuario = 2; -- Reemplaza con un ID de usuario válido que exista en la tabla Usuarios
 
 ------------------------------------SELECTS-----------------------------------------
+-- Inserta un usuario de prueba
+INSERT INTO Usuarios (cedula, nombre, email, password)
+VALUES (123456789, 'Juan Pérez', 'juan.perez@example.com', 'securepassword');
+
+-- Supongamos que el ID de usuario insertado es 1 y el ID de compra es 1:
+-- Inserta un encabezado de factura de prueba
+INSERT INTO EncabezadoFactura (id_usuario, id_compra)
+VALUES (1, 1);
+---------------------------------------------------------------------------------
+
+-- Supongamos que ya has insertado la compra:
+INSERT INTO Compra (id_usuario, id_producto, id_tarjeta)
+VALUES (2, 2, 2);  -- Ajusta los valores según tu necesidad
+
+-- Luego, ejecuta el procedimiento almacenado para actualizar el precio total
+EXEC sp_ActualizarPrecioTotalCompra @id_compra = SCOPE_IDENTITY();
+
+
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
 SELECT * FROM Productos;
 SELECT * FROM Categorias;
-SELECT * FROM Inventario;
 SELECT * FROM Factura;
+SELECT * FROM Carrito;
+SELECT * FROM Tarjetas;
+SELECT * FROM Compra;
+
+
+
+
+
