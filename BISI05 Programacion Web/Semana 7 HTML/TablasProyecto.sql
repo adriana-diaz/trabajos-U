@@ -1,4 +1,5 @@
 -- Tablas --
+
 CREATE TABLE Categorias (
     id_categoria INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(100) NOT NULL UNIQUE,
@@ -49,7 +50,7 @@ CREATE TABLE Carrito (
 CREATE TABLE Tarjetas (
     id_tarjeta INT IDENTITY(1,1) PRIMARY KEY,
     numero_tarjeta INT NOT NULL UNIQUE, 
-    fecha_expiracion DATE NOT NULL,
+    fecha_expiracion NVARCHAR(MAX) NOT NULL,
 	CVV INT NOT NULL UNIQUE,
 	id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
@@ -84,8 +85,10 @@ CREATE TABLE DetalleFactura (
    --
    id_encabezadoFactura INT NOT NULL,
    id_producto INT NOT NULL,
+   id_compra INT NOT NULL,
    FOREIGN KEY (id_encabezadoFactura) REFERENCES encabezadoFactura(id_encabezadoFactura),
    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+   FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),
 );
 
 CREATE TABLE Factura (
