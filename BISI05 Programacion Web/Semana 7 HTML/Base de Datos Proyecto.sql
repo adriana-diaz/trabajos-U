@@ -68,7 +68,7 @@ CREATE TABLE Carrito (
 CREATE TABLE Tarjetas (
     id_tarjeta INT IDENTITY(1,1) PRIMARY KEY,
     numero_tarjeta INT NOT NULL UNIQUE, 
-    fecha_expiracion DATE NOT NULL,
+    fecha_expiracion NVARCHAR(MAX) NOT NULL,
 	CVV INT NOT NULL UNIQUE,
 	id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
@@ -634,7 +634,7 @@ END
 GO
 --NO TOCAR final
 ---------------------------------------------------------
---Compras
+--carrito
 USE BDProyectoWeb
 GO
 SELECT 
@@ -653,4 +653,270 @@ FULL JOIN
     Usuarios U ON C.id_usuario = U.id_usuario
 FULL JOIN 
     Productos P ON C.id_producto = P.id_producto;
+GO
+--
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_AGREGAR_PRODUCTO_AL_CARRITO
+    @id_usuario INT,
+    @nombre_producto NVARCHAR(100),
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+AS
+BEGIN
+    BEGIN TRY
+        -- Declarar variable para almacenar el id_producto
+        DECLARE @id_producto INT;
+
+        -- Buscar el id_producto basado en el nombre del producto
+        SELECT @id_producto = id_producto 
+        FROM Productos 
+        WHERE nombre = @nombre_producto;
+
+        -- Verificar si el producto existe
+        IF @id_producto IS NULL
+        BEGIN
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1; -- Producto no encontrado
+            SET @ERRORDESCRIPCION = 'El producto especificado no existe';
+            RETURN;
+        END
+
+        -- Insertar el producto en el carrito
+        INSERT INTO Carrito (id_usuario, id_producto)
+        VALUES (@id_usuario, @id_producto);
+
+        -- Devolver el ID del carrito recién insertado
+        SET @IDRETURN = SCOPE_IDENTITY();
+        SET @ERRORID = 0;
+        SET @ERRORDESCRIPCION = '';
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+--la idea del profe:
+CREATE PROCEDURE sp_ObtenerProductosCarrito
+    @id_usuario INT
+AS
+BEGIN
+    SELECT 
+        c.id_producto,
+        p.nombre,
+        p.descripcion,
+        p.precio_producto,
+        p.fecha_agregado,
+        p.cantidad
+    FROM 
+        Carrito c
+    INNER JOIN 
+        Productos p ON c.id_producto = p.id_producto
+    WHERE 
+        c.id_usuario = @id_usuario;
+END;
+GO
+-----
+EXEC sp_ObtenerProductosCarrito @id_usuario = 1;
+-----
+--tarjeta->
+
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_INGRESAR_TARJETA
+(
+    @numero_tarjeta INT,
+    @fecha_expiracion NVARCHAR(MAX), 
+    @CVV INT,
+    @id_usuario INT,
+    @IDRETURN INT OUTPUT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar si el usuario existe
+        DECLARE @existe_usuario INT;
+        
+        SELECT @existe_usuario = COUNT(*)
+        FROM Usuarios
+        WHERE id_usuario = @id_usuario;
+
+        IF @existe_usuario > 0
+        BEGIN
+            -- Insertar la nueva tarjeta
+            INSERT INTO Tarjetas 
+            (
+                numero_tarjeta,
+                fecha_expiracion,
+                CVV,
+                id_usuario
+            )
+            VALUES
+            (
+                @numero_tarjeta,
+                @fecha_expiracion,
+                @CVV,
+                @id_usuario
+            );
+
+            -- Devolver el ID de la nueva tarjeta
+            SET @IDRETURN = SCOPE_IDENTITY();
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = '';
+        END
+        ELSE
+        BEGIN
+            -- El usuario no existe, devolver error
+            SET @IDRETURN = -1;
+            SET @ERRORID = 1; -- Usuario no existe
+            SET @ERRORDESCRIPCION = 'Usuario especificado no existe.';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Capturar errores y devolver información sobre el error
+        SET @IDRETURN = -1;
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+--
+USE BDProyectoWeb
+GO
+
+CREATE PROCEDURE SP_ELIMINAR_TARJETA_POR_NUMERO
+(
+    @numero_tarjeta INT,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar si la tarjeta existe
+        DECLARE @existe_tarjeta INT;
+
+        SELECT @existe_tarjeta = COUNT(*)
+        FROM Tarjetas
+        WHERE numero_tarjeta = @numero_tarjeta;
+
+        IF @existe_tarjeta > 0
+        BEGIN
+            -- Eliminar la tarjeta
+            DELETE FROM Tarjetas
+            WHERE numero_tarjeta = @numero_tarjeta;
+
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = '';
+        END
+        ELSE
+        BEGIN
+            -- La tarjeta no existe, devolver error
+            SET @ERRORID = 1; -- Tarjeta no existe
+            SET @ERRORDESCRIPCION = 'Tarjeta especificada no existe.';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Capturar errores y devolver información sobre el error
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_ACTUALIZAR_TARJETA_POR_NUMERO
+(
+    @numero_tarjeta INT,
+    @nuevo_numero_tarjeta INT = NULL,
+    @nueva_fecha_expiracion NVARCHAR(10) = NULL,  -- Utiliza STRING en lugar de DATE
+    @nuevo_CVV INT = NULL,
+    @ERRORID INT OUTPUT,
+    @ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar si la tarjeta existe
+        DECLARE @existe_tarjeta INT;
+
+        SELECT @existe_tarjeta = COUNT(*)
+        FROM Tarjetas
+        WHERE numero_tarjeta = @numero_tarjeta;
+
+        IF @existe_tarjeta > 0
+        BEGIN
+            -- Actualizar la tarjeta
+            UPDATE Tarjetas
+            SET 
+                numero_tarjeta = COALESCE(@nuevo_numero_tarjeta, numero_tarjeta),
+                fecha_expiracion = COALESCE(@nueva_fecha_expiracion, fecha_expiracion),
+                CVV = COALESCE(@nuevo_CVV, CVV)
+            WHERE numero_tarjeta = @numero_tarjeta;
+
+            SET @ERRORID = 0;
+            SET @ERRORDESCRIPCION = '';
+        END
+        ELSE
+        BEGIN
+            -- La tarjeta no existe, devolver error
+            SET @ERRORID = 1; -- Tarjeta no existe
+            SET @ERRORDESCRIPCION = 'Tarjeta especificada no existe.';
+        END
+    END TRY
+    BEGIN CATCH
+        -- Capturar errores y devolver información sobre el error
+        SET @ERRORID = ERROR_NUMBER();
+        SET @ERRORDESCRIPCION = ERROR_MESSAGE();
+    END CATCH
+END
+GO
+----------------------
+--encabezado
+
+CREATE PROCEDURE sp_ObtenerEncabezadoFactura
+    @id_encabezadoFactura INT
+AS
+BEGIN
+    SELECT 
+        ef.fecha AS FechaFactura,
+        u.cedula AS CedulaUsuario,
+        u.nombre AS NombreUsuario,
+        ef.id_compra AS IdCompra
+    FROM 
+        EncabezadoFactura ef
+    INNER JOIN 
+        Usuarios u ON ef.id_usuario = u.id_usuario
+    WHERE 
+        ef.id_encabezadoFactura = @id_encabezadoFactura;
+END;
+GO
+-------------------------
+--preciototal/compra
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE sp_ActualizarPrecioTotalCompra
+    @id_compra INT
+AS
+BEGIN
+    DECLARE @precio_total DECIMAL(18, 2);
+
+    -- Calcula el precio total sumando los precios de los productos asociados con la compra
+    SELECT @precio_total = SUM(p.precio_producto)
+    FROM Productos p
+    INNER JOIN Compra c ON p.id_producto = c.id_producto
+    WHERE c.id_compra = @id_compra;
+
+    -- Actualiza el campo precio_total en la tabla Compra
+    UPDATE Compra
+    SET precio_total = @precio_total
+    WHERE id_compra = @id_compra;
+END;
 GO
