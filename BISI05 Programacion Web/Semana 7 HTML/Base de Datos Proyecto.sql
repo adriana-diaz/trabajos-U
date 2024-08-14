@@ -89,7 +89,6 @@ CREATE TABLE Compra (
 
 CREATE TABLE EncabezadoFactura (
    id_encabezadoFactura INT IDENTITY(1,1) PRIMARY KEY, 
-   fecha DATETIME DEFAULT GETDATE() NOT NULL,
    --
    id_usuario INT NOT NULL,
    id_compra INT NOT NULL,
@@ -879,6 +878,64 @@ BEGIN
 END
 GO
 ----------------------
+--preciototal/compra
+CREATE PROCEDURE sp_InsertarCompraDesdeCarrito
+    @id_usuario INT,
+    @id_tarjeta INT,
+    @returnId INT OUTPUT,
+    @errorId INT OUTPUT,
+    @errorDescripcion NVARCHAR(255) OUTPUT
+AS
+BEGIN
+    DECLARE @precio_total DECIMAL(18, 2);
+
+    BEGIN TRY
+        -- Inicializar parámetros de salida
+        SET @returnId = 0;
+        SET @errorId = 0;
+        SET @errorDescripcion = NULL;
+
+        -- Validar si la tarjeta está asociada al usuario
+        IF NOT EXISTS (SELECT 1 FROM Tarjetas WHERE id_tarjeta = @id_tarjeta AND id_usuario = @id_usuario)
+        BEGIN
+            SET @errorId = 1;
+            SET @errorDescripcion = 'La tarjeta no está asociada a este usuario.';
+            RETURN;
+        END
+
+        BEGIN TRANSACTION;
+
+        -- Calcular el precio total considerando la cantidad de productos en la tabla Productos
+        SELECT @precio_total = SUM(p.precio_producto * p.cantidad)
+        FROM Productos p
+        INNER JOIN Carrito c ON p.id_producto = c.id_producto
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Insertar la nueva compra en la tabla Compra
+        INSERT INTO Compra (id_usuario, precio_total, id_producto, id_tarjeta)
+        SELECT @id_usuario, @precio_total, c.id_producto, @id_tarjeta
+        FROM Carrito c
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Obtener el ID de la compra recién insertada
+        SET @returnId = SCOPE_IDENTITY();
+
+        -- Limpiar el carrito del usuario después de la compra
+        DELETE FROM Carrito
+        WHERE id_usuario = @id_usuario;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        -- Manejo de errores
+        SET @errorId = ERROR_NUMBER();
+        SET @errorDescripcion = ERROR_MESSAGE();
+        SET @returnId = -1;
+    END CATCH
+END;
+GO
+
 --encabezado
 
 CREATE PROCEDURE sp_ObtenerEncabezadoFactura
@@ -899,24 +956,3 @@ BEGIN
 END;
 GO
 -------------------------
---preciototal/compra
-USE BDProyectoWeb
-GO
-CREATE PROCEDURE sp_ActualizarPrecioTotalCompra
-    @id_compra INT
-AS
-BEGIN
-    DECLARE @precio_total DECIMAL(18, 2);
-
-    -- Calcula el precio total sumando los precios de los productos asociados con la compra
-    SELECT @precio_total = SUM(p.precio_producto)
-    FROM Productos p
-    INNER JOIN Compra c ON p.id_producto = c.id_producto
-    WHERE c.id_compra = @id_compra;
-
-    -- Actualiza el campo precio_total en la tabla Compra
-    UPDATE Compra
-    SET precio_total = @precio_total
-    WHERE id_compra = @id_compra;
-END;
-GO
