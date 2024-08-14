@@ -71,7 +71,6 @@ CREATE TABLE Compra (
 
 CREATE TABLE EncabezadoFactura (
    id_encabezadoFactura INT IDENTITY(1,1) PRIMARY KEY, 
-   fecha DATETIME DEFAULT GETDATE() NOT NULL,
    --
    id_usuario INT NOT NULL,
    id_compra INT NOT NULL,
