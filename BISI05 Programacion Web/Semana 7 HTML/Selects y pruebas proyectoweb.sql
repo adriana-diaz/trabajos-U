@@ -76,7 +76,7 @@ SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDES
 --INSERTS CATEGORIAS
 --Insertar una categoría de ejemplo
 INSERT INTO Categorias (nombre, descripcion) 
-VALUES ('Maquinas', 'Todas las bebidas disponibles');
+VALUES ('Bebidas', 'Todas las bebidas disponibles');
 
 --AGREGAR PRODUCTO LISTO!!!!!!!!
 -- Declarar variables de salida
@@ -86,8 +86,8 @@ DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
 
 -- Llamar al procedimiento almacenado
 EXEC SP_AGREGAR_PRODUCTO
-    @nombre_categoria = 'Maquinas',  -- Nombre de la categoría existente
-    @nombre = 'Coffee Maker',
+    @nombre_categoria = 'Bebidas',  -- Nombre de la categoría existente
+    @nombre = 'Te',
     @descripcion = 'de muy alta calidad',
     @precio_producto = 10000,
     @cantidad = 10,
@@ -186,13 +186,7 @@ DECLARE @total_compra DECIMAL(10, 2) = 201.00;
 DECLARE @fecha_compra DATETIME = GETDATE();
  
 -- Ejecutar el procedimiento almacenado y obtener el nombre del usuario
-EXEC InsertarDetalleCompra 
-    @sesion = @sesion,
-    @nombre_producto = @nombre_producto,
-    @cantidad_producto = @cantidad_producto,
-    @precio_producto = @precio_producto,
-    @total_compra = @total_compra,
-    @fecha_compra = @fecha_compra;
+
 	----------------------------------
 	--version rapida
 INSERT INTO Carrito (id_usuario, id_producto) VALUES (1, 1);  -- Usuario 1 compra Producto 1
@@ -204,7 +198,7 @@ DECLARE @IDRETURN INT,
 
 EXEC [dbo].[SP_AGREGAR_PRODUCTO_AL_CARRITO] 
     @id_usuario = 1,
-    @nombre_producto = 'Expresso Doble',
+    @nombre_producto = 'Te',
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -215,11 +209,27 @@ SELECT @IDRETURN AS ID_CARRITO,
        @ERRORDESCRIPCION AS ERROR_DESCRIPCION;
 ------------------------------------------------------------------------------------
 -- Ejecutar el procedimiento almacenado para probarlo
+
+DECLARE @IDRETURN INT;
+DECLARE @ERRORID INT;
+DECLARE @ERRORDESCRIPCION NVARCHAR(MAX);
+
+-- Ejecutar el procedimiento almacenado
 EXEC SP_INGRESAR_TARJETA
-    @numero_tarjeta = 545454545, -- Reemplaza con un número de tarjeta válido para prueba
-    @fecha_expiracion = '2025-12-31', -- Reemplaza con una fecha de expiración válida
-    @CVV = 963, -- Reemplaza con un CVV válido para prueba
-    @id_usuario = 2; -- Reemplaza con un ID de usuario válido que exista en la tabla Usuarios
+    @numero_tarjeta = 123453456,  -- Reemplaza con el número de tarjeta real
+    @fecha_expiracion = '12/25',          -- Reemplaza con la fecha de expiración real
+    @CVV = 123,                           -- Reemplaza con el CVV real
+    @id_usuario = 1,                      -- Reemplaza con el ID de usuario real
+    @IDRETURN = @IDRETURN OUTPUT,
+    @ERRORID = @ERRORID OUTPUT,
+    @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
+
+-- Mostrar los resultados
+SELECT 
+    @IDRETURN AS ID_RETURNED,
+    @ERRORID AS ERROR_ID,
+    @ERRORDESCRIPCION AS ERROR_DESCRIPTION;
+
 
 ------------------------------------SELECTS-----------------------------------------
 -- Inserta un usuario de prueba
@@ -240,16 +250,78 @@ VALUES (2, 2, 2);  -- Ajusta los valores según tu necesidad
 EXEC sp_ActualizarPrecioTotalCompra @id_compra = SCOPE_IDENTITY();
 
 
+INSERT INTO Carrito (id_usuario, id_producto) 
+VALUES (1, 1);
+
+INSERT INTO Carrito (id_usuario, id_producto) 
+VALUES (2, 2);
+
+
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
 SELECT * FROM Productos;
 SELECT * FROM Categorias;
 SELECT * FROM Factura;
+select * from EncabezadoFactura;
+select * from DetalleFactura;
 SELECT * FROM Carrito;
 SELECT * FROM Tarjetas;
 SELECT * FROM Compra;
 
 
+SELECT 
+    p.nombre AS Producto, 
+    p.precio_producto AS Precio
+FROM 
+    DetalleFactura df
+    LEFT JOIN Productos p ON df.id_producto = p.id_producto
+WHERE 
+    df.id_compra = 1;
 
+
+
+
+
+
+
+
+
+EXEC sp_InsertarCompraDesdeCarrito 
+    @id_usuario = 1,
+    @id_tarjeta = 1; -- Tarjeta del Usuario1
+
+
+	EXEC SP_EMITIR_FACTURA_COMPLETA @id_compra = 1;
+	-- Insertar un usuario
+INSERT INTO Usuarios (cedula, nombre, email, password)
+VALUES (12345678, 'Juan Pérez', 'juan.perez@example.com', 'contraseña123');
+
+-- Insertar una categoría
+INSERT INTO Categorias (nombre, descripcion)
+VALUES ('Maquinas', 'maquinas electrónias');
+
+-- Insertar un producto
+INSERT INTO Productos (id_categoria, nombre, descripcion, precio_producto, cantidad)
+VALUES (1, 'coffe maker', 'alta calidad', 1200.00, 10);
+
+-- Insertar una tarjeta
+INSERT INTO Tarjetas (numero_tarjeta, fecha_expiracion, CVV, id_usuario)
+VALUES (7676767, '12/2025', 852, 2);
+
+-- Insertar una compra
+INSERT INTO Compra (fecha, precio_total, id_usuario, id_producto, id_tarjeta)
+VALUES (GETDATE(), 1200.00, 1, 1, 1);
+
+-- Insertar un encabezado de factura
+INSERT INTO EncabezadoFactura (id_usuario, id_compra)
+VALUES (1, 1);
+
+-- Insertar un detalle de factura
+INSERT INTO DetalleFactura (id_encabezadoFactura, id_producto, id_compra, cantidad)
+VALUES (1, 1, 1, 1);
+
+
+-- Ejecutar el procedimiento almacenado con un id_encabezadoFactura válido
+EXEC EmitirFactura @id_encabezadoFactura = 1;
 
 
