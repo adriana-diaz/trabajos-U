@@ -100,10 +100,8 @@ CREATE TABLE EncabezadoFactura (
 CREATE TABLE DetalleFactura (
    id_detalleFactura INT IDENTITY(1,1) PRIMARY KEY,
    --
-   id_encabezadoFactura INT NOT NULL,
    id_producto INT NOT NULL,
    id_compra INT NOT NULL,
-   FOREIGN KEY (id_encabezadoFactura) REFERENCES encabezadoFactura(id_encabezadoFactura),
    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
    FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),
 );
@@ -971,106 +969,84 @@ BEGIN
 END;
 GO
 
---encabezado
-
---CREATE PROCEDURE sp_ObtenerEncabezadoFactura
---    @id_encabezadoFactura INT
---AS
---BEGIN
---    SELECT 
---        ef.fecha AS FechaFactura,
---        u.cedula AS CedulaUsuario,
---        u.nombre AS NombreUsuario,
---        ef.id_compra AS IdCompra
---    FROM 
---        EncabezadoFactura ef
---    INNER JOIN 
---        Usuarios u ON ef.id_usuario = u.id_usuario
---    WHERE 
---        ef.id_encabezadoFactura = @id_encabezadoFactura;
---END;
---GO
--------------------------
 --factura
-EXEC EmitirFactura @id_compra = 4;
 
 USE BDProyectoWeb
 GO
-CREATE PROCEDURE EmitirFactura
+CREATE PROCEDURE sp_SalvarFactura (
     @id_compra INT
+)
 AS
 BEGIN
-    DECLARE @id_usuario INT, @nombre NVARCHAR(100), @cedula INT, @fecha DATETIME, @precio_total DECIMAL(18, 2);
-    DECLARE @id_encabezadoFactura INT, @id_detalleFactura INT;
-    DECLARE @producto_nombre NVARCHAR(100), @producto_precio DECIMAL(18, 2);
+    DECLARE @id_encabezadoFactura INT;
+    DECLARE @id_usuario INT;
+    DECLARE @fecha DATETIME;
+    SELECT @fecha = fecha, @id_usuario = id_usuario
+    FROM Compra
+    WHERE id_compra = @id_compra;
     
-    -- 1. Recuperar los datos del encabezado de la factura
-    SELECT 
-        @id_usuario = u.id_usuario, 
-        @nombre = u.nombre, 
-        @cedula = u.cedula, 
-        @fecha = c.fecha, 
-        @precio_total = c.precio_total
-    FROM 
-        Usuarios u
-        JOIN Compra c ON u.id_usuario = c.id_usuario
-    WHERE 
-        c.id_compra = @id_compra;
-
-    IF @id_usuario IS NULL
-    BEGIN
-        PRINT 'Error: No se encontró ningún usuario para la compra indicada.';
-        RETURN;
-    END;
-    
-    -- 2. Insertar un nuevo encabezado de factura
     INSERT INTO EncabezadoFactura (id_usuario, id_compra)
     VALUES (@id_usuario, @id_compra);
 
-    -- Obtener el ID del encabezado de factura recién insertado
     SET @id_encabezadoFactura = SCOPE_IDENTITY();
 
-    -- 3. Recuperar los detalles de la compra y productos
-    DECLARE cur CURSOR FOR 
+
+    INSERT INTO DetalleFactura (id_producto, id_compra)
+    SELECT id_producto, @id_compra
+    FROM Compra
+    WHERE id_compra = @id_compra;
+
+    INSERT INTO Factura (id_detalleFactura, id_encabezadoFactura)
+    SELECT DF.id_detalleFactura, @id_encabezadoFactura
+    FROM DetalleFactura DF
+    WHERE DF.id_compra = @id_compra;
+
+	SELECT 
+        F.id_factura AS ID_FACTURA, 
+        EF.id_encabezadoFactura AS ID_ENCABEZADO, 
+        EF.id_usuario AS ID_USUARIO, 
+        U.nombre AS CLIENTE, 
+        DF.id_producto AS PRODUCTOID, 
+        P.nombre AS PRODUCTO, 
+        P.precio_producto AS PRECIO
+    FROM Factura F
+    INNER JOIN EncabezadoFactura EF ON F.id_encabezadoFactura = EF.id_encabezadoFactura
+    INNER JOIN DetalleFactura DF ON F.id_detalleFactura = DF.id_detalleFactura
+    INNER JOIN Productos P ON DF.id_producto = P.id_producto
+    INNER JOIN Usuarios U ON EF.id_usuario = U.id_usuario
+    WHERE EF.id_compra = @id_compra
+    ORDER BY F.id_factura, DF.id_producto DESC;
+END
+GO
+
+-- Ejemplo de ejecución
+EXEC sp_SalvarFactura 1;
+
+DROP PROCEDURE IF EXISTS sp_LeerFactura;
+GO
+
+CREATE PROCEDURE sp_LeerFactura (
+    @id_compra INT
+)
+AS
+BEGIN
     SELECT 
-        df.id_detalleFactura, p.nombre, p.precio_producto
-    FROM 
-        DetalleFactura df
-        JOIN Productos p ON df.id_producto = p.id_producto
-    WHERE 
-        df.id_compra = @id_compra;
-    
-    OPEN cur;
-    FETCH NEXT FROM cur INTO @id_detalleFactura, @producto_nombre, @producto_precio;
-    
-    -- Imprimir el encabezado de la factura
-    PRINT '----------------------------';
-    PRINT 'Factura para: ' + @nombre;
-    PRINT 'Cédula: ' + CAST(@cedula AS NVARCHAR(50));
-    PRINT 'Fecha de compra: ' + CAST(@fecha AS NVARCHAR(50));
-    PRINT '----------------------------';
-    
-    -- Imprimir detalles de la factura
-    PRINT 'Detalles de la compra:';
-    
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        -- Insertar los detalles de la factura en la tabla Factura
-        INSERT INTO Factura (id_detalleFactura, id_encabezadoFactura)
-        VALUES (@id_detalleFactura, @id_encabezadoFactura);
+        F.id_factura AS ID_FACTURA, 
+        EF.id_encabezadoFactura AS ID_ENCABEZADO, 
+        EF.id_usuario AS ID_USUARIO, 
+        U.nombre AS CLIENTE, 
+        DF.id_producto AS PRODUCTOID, 
+        P.nombre AS PRODUCTO, 
+        P.precio_producto AS PRECIO
+    FROM Factura F
+    INNER JOIN EncabezadoFactura EF ON F.id_encabezadoFactura = EF.id_encabezadoFactura
+    INNER JOIN DetalleFactura DF ON F.id_detalleFactura = DF.id_detalleFactura
+    INNER JOIN Productos P ON DF.id_producto = P.id_producto
+    INNER JOIN Usuarios U ON EF.id_usuario = U.id_usuario
+    WHERE EF.id_compra = @id_compra
+    ORDER BY F.id_factura, DF.id_producto DESC;
+END
+GO
 
-        -- Imprimir detalles del producto
-        PRINT 'Producto: ' + @producto_nombre + ', Precio: ' + CAST(@producto_precio AS NVARCHAR(50));
-        
-        FETCH NEXT FROM cur INTO @id_detalleFactura, @producto_nombre, @producto_precio;
-    END;
-    
-    CLOSE cur;
-    DEALLOCATE cur;
-
-    -- Imprimir el total de la factura
-    PRINT '----------------------------';
-    PRINT 'Precio Total: ' + CAST(@precio_total AS NVARCHAR(50));
-    PRINT '----------------------------';
-END;
-
+-- Ejemplo de ejecución
+EXEC sp_SalvarFactura 1;
