@@ -76,7 +76,7 @@ SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDES
 --INSERTS CATEGORIAS
 --Insertar una categoría de ejemplo
 INSERT INTO Categorias (nombre, descripcion) 
-VALUES ('Bebidas', 'Todas las bebidas disponibles');
+VALUES ('Bebidas', 'Todas las bolsas disponibles');
 
 --AGREGAR PRODUCTO LISTO!!!!!!!!
 -- Declarar variables de salida
@@ -90,7 +90,6 @@ EXEC SP_AGREGAR_PRODUCTO
     @nombre = 'Te',
     @descripcion = 'de muy alta calidad',
     @precio_producto = 10000,
-    @cantidad = 10,
     @IDRETURN = @IDRETURN OUTPUT,
     @ERRORID = @ERRORID OUTPUT,
     @ERRORDESCRIPCION = @ERRORDESCRIPCION OUTPUT;
@@ -172,24 +171,6 @@ EXEC SP_ELIMINAR_CATEGORIA
 
 SELECT @IDRETURN AS IDRETURN, @ERRORID AS ERRORID, @ERRORDESCRIPCION AS ERRORDESCRIPCION;
 ----------------------------------------------------------------------------
---Compras
--- Ejecutar el procedimiento SP_INSERTAR_COMPRA
--- Declarar las variables necesarias
----------------------------------------------------
---detalleCompra
--- Declarar las variables necesarias
-DECLARE @sesion NVARCHAR(MAX) = '93868743-D0DC-4510-A2DC-6CFC47BF92A9';  -- Reemplaza con el identificador de sesión válido
-DECLARE @nombre_producto NVARCHAR(100) = 'Latte';
-DECLARE @cantidad_producto INT = 2;
-DECLARE @precio_producto DECIMAL(18, 2) = 100.50;
-DECLARE @total_compra DECIMAL(10, 2) = 201.00;
-DECLARE @fecha_compra DATETIME = GETDATE();
- 
--- Ejecutar el procedimiento almacenado y obtener el nombre del usuario
-
-	----------------------------------
-	--version rapida
-INSERT INTO Carrito (id_usuario, id_producto) VALUES (1, 1);  -- Usuario 1 compra Producto 1
 
 --version por el nombre del producto
 DECLARE @IDRETURN INT,
@@ -235,27 +216,7 @@ SELECT
 -- Inserta un usuario de prueba
 INSERT INTO Usuarios (cedula, nombre, email, password)
 VALUES (123456789, 'Juan Pérez', 'juan.perez@example.com', 'securepassword');
-
--- Supongamos que el ID de usuario insertado es 1 y el ID de compra es 1:
--- Inserta un encabezado de factura de prueba
-INSERT INTO EncabezadoFactura (id_usuario, id_compra)
-VALUES (1, 1);
 ---------------------------------------------------------------------------------
-
--- Supongamos que ya has insertado la compra:
-INSERT INTO Compra (id_usuario, id_producto, id_tarjeta)
-VALUES (2, 2, 2);  -- Ajusta los valores según tu necesidad
-
--- Luego, ejecuta el procedimiento almacenado para actualizar el precio total
-EXEC sp_ActualizarPrecioTotalCompra @id_compra = SCOPE_IDENTITY();
-
-
-INSERT INTO Carrito (id_usuario, id_producto) 
-VALUES (1, 1);
-
-INSERT INTO Carrito (id_usuario, id_producto) 
-VALUES (2, 2);
-
 
 SELECT * FROM Sesiones;
 SELECT * FROM Usuarios;
@@ -266,39 +227,14 @@ select * from EncabezadoFactura;
 select * from DetalleFactura;
 SELECT * FROM Carrito;
 SELECT * FROM Tarjetas;
-SELECT * FROM Compra;
 
-
-SELECT 
-    p.nombre AS Producto, 
-    p.precio_producto AS Precio
-FROM 
-    DetalleFactura df
-    LEFT JOIN Productos p ON df.id_producto = p.id_producto
-WHERE 
-    df.id_compra = 1;
-
-
-
-
-
-
-
-
-
-EXEC sp_InsertarCompraDesdeCarrito 
-    @id_usuario = 1,
-    @id_tarjeta = 1; -- Tarjeta del Usuario1
-
-
-	EXEC SP_EMITIR_FACTURA_COMPLETA @id_compra = 1;
 	-- Insertar un usuario
 INSERT INTO Usuarios (cedula, nombre, email, password)
 VALUES (12345678, 'Juan Pérez', 'juan.perez@example.com', 'contraseña123');
 
 -- Insertar una categoría
 INSERT INTO Categorias (nombre, descripcion)
-VALUES ('Maquinas', 'maquinas electrónias');
+VALUES ('Bebidas', 'maquinas electrónias');
 
 -- Insertar un producto
 INSERT INTO Productos (id_categoria, nombre, descripcion, precio_producto, cantidad)
@@ -306,22 +242,88 @@ VALUES (1, 'coffe maker', 'alta calidad', 1200.00, 10);
 
 -- Insertar una tarjeta
 INSERT INTO Tarjetas (numero_tarjeta, fecha_expiracion, CVV, id_usuario)
-VALUES (7676767, '12/2025', 852, 2);
+VALUES (999999, '12/2025', 853, 3);
 
--- Insertar una compra
-INSERT INTO Compra (fecha, precio_total, id_usuario, id_producto, id_tarjeta)
-VALUES (GETDATE(), 1200.00, 1, 1, 1);
+---------------------------
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_FACTURA(
+@id_usuario INT,
+@IDRETURN INT OUTPUT,
+@ERRORID INT OUTPUT,
+@ERRORDESCRIPCION NVARCHAR(MAX) OUTPUT
+)
+as begin
+DECLARE @EXISTE INT = 0
+select @EXISTE = @id_factura from factura WHERE ID = @facturaId
+if (@EXISTE = 0)
+	INSERT INTO DBO.FACTURA (ID, FECHA) VALUES (@idfactura, @fecha)
+ELSE
+UPDATE FACTURA SET FECHA = @fecha
+WHERE ID = @idfactura
 
--- Insertar un encabezado de factura
-INSERT INTO EncabezadoFactura (id_usuario, id_compra)
-VALUES (1, 1);
+---
 
--- Insertar un detalle de factura
-INSERT INTO DetalleFactura (id_encabezadoFactura, id_producto, id_compra, cantidad)
-VALUES (1, 1, 1, 1);
+exec sp_generar_factura 1
 
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_GENERAR_FACTURA(
+    @id_usuario INT
+)
+AS
+BEGIN
+        DECLARE @id_factura INT;
+        DECLARE @monto_total DECIMAL(18, 2) = 0;
 
--- Ejecutar el procedimiento almacenado con un id_encabezadoFactura válido
-EXEC EmitirFactura @id_encabezadoFactura = 1;
+        -- Verificar si ya existe una factura para este usuario
+        SELECT @id_factura = id_factura 
+        FROM Factura 
+        WHERE id_usuario = @id_usuario;
 
+        -- Si no existe, crear una nueva factura
+        IF (@id_factura IS NULL)
+        BEGIN
+            INSERT INTO Factura (id_usuario)
+            VALUES (@id_usuario);
 
+            SET @id_factura = SCOPE_IDENTITY();
+        END
+
+        -- Calcular el monto total de los productos en el carrito del usuario
+        SELECT @monto_total = SUM(p.precio_producto * c.cantidad)
+        FROM Carrito c
+        JOIN Productos p ON c.id_producto = p.id_producto
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Insertar los detalles de la factura en DetalleFactura
+        INSERT INTO DetalleFactura (id_factura, id_producto, id_carrito)
+        SELECT @id_factura, c.id_producto, c.id_carrito
+        FROM Carrito c
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Seleccionar toda la información relevante de la factura y sus detalles
+        SELECT 
+            f.id_factura,
+            f.fecha,
+            u.nombre AS nombre_usuario,
+            u.cedula,
+            p.nombre AS nombre_producto,
+            p.precio_producto,
+            c.cantidad,
+            (p.precio_producto * c.cantidad) AS subtotal,
+			@monto_total as monto_total
+        FROM 
+            Factura f
+        JOIN 
+            Usuarios u ON f.id_usuario = u.id_usuario
+        JOIN 
+            DetalleFactura df ON f.id_factura = df.id_factura
+        JOIN 
+            Productos p ON df.id_producto = p.id_producto
+        JOIN 
+            Carrito c ON df.id_carrito = c.id_carrito
+        WHERE 
+            f.id_factura = @id_factura;
+END;
+GO
