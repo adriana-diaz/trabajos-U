@@ -886,26 +886,66 @@ BEGIN
 END
 GO
 ----------------------
+exec sp_generar_factura 1
 
-CREATE PROCEDURE sp_LeerFactura (
-    @id_compra INT
+USE BDProyectoWeb
+GO
+CREATE PROCEDURE SP_GENERAR_FACTURA(
+    @id_usuario INT
 )
 AS
 BEGIN
-    SELECT 
-        F.id_factura AS ID_FACTURA, 
-        EF.id_encabezadoFactura AS ID_ENCABEZADO, 
-        EF.id_usuario AS ID_USUARIO, 
-        U.nombre AS CLIENTE, 
-        DF.id_producto AS PRODUCTOID, 
-        P.nombre AS PRODUCTO, 
-        P.precio_producto AS PRECIO
-    FROM Factura F
-    INNER JOIN EncabezadoFactura EF ON F.id_encabezadoFactura = EF.id_encabezadoFactura
-    INNER JOIN DetalleFactura DF ON F.id_detalleFactura = DF.id_detalleFactura
-    INNER JOIN Productos P ON DF.id_producto = P.id_producto
-    INNER JOIN Usuarios U ON EF.id_usuario = U.id_usuario
-    WHERE EF.id_compra = @id_compra
-    ORDER BY F.id_factura, DF.id_producto DESC;
-END
+        DECLARE @id_factura INT;
+        DECLARE @monto_total DECIMAL(18, 2) = 0;
+
+        -- Verificar si ya existe una factura para este usuario
+        SELECT @id_factura = id_factura 
+        FROM Factura 
+        WHERE id_usuario = @id_usuario;
+
+        -- Si no existe, crear una nueva factura
+        IF (@id_factura IS NULL)
+        BEGIN
+            INSERT INTO Factura (id_usuario)
+            VALUES (@id_usuario);
+
+            SET @id_factura = SCOPE_IDENTITY();
+        END
+
+        -- Calcular el monto total de los productos en el carrito del usuario
+        SELECT @monto_total = SUM(p.precio_producto * c.cantidad)
+        FROM Carrito c
+        JOIN Productos p ON c.id_producto = p.id_producto
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Insertar los detalles de la factura en DetalleFactura
+        INSERT INTO DetalleFactura (id_factura, id_producto, id_carrito)
+        SELECT @id_factura, c.id_producto, c.id_carrito
+        FROM Carrito c
+        WHERE c.id_usuario = @id_usuario;
+
+        -- Seleccionar toda la información relevante de la factura y sus detalles
+        SELECT 
+            f.id_factura,
+            f.fecha,
+            u.nombre AS nombre_usuario,
+            u.cedula,
+            p.nombre AS nombre_producto,
+            p.precio_producto,
+            c.cantidad,
+            (p.precio_producto * c.cantidad) AS subtotal,
+			@monto_total as monto_total
+        FROM 
+            Factura f
+        JOIN 
+            Usuarios u ON f.id_usuario = u.id_usuario
+        JOIN 
+            DetalleFactura df ON f.id_factura = df.id_factura
+        JOIN 
+            Productos p ON df.id_producto = p.id_producto
+        JOIN 
+            Carrito c ON df.id_carrito = c.id_carrito
+        WHERE 
+            f.id_factura = @id_factura;
+END;
 GO
