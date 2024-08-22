@@ -1,3 +1,4 @@
+
 -- Tablas --
 
 CREATE TABLE Categorias (
@@ -65,4 +66,17 @@ CREATE TABLE Factura (
    id_usuario INT NOT NULL,
    --
    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+);
+
+CREATE TABLE DetalleFactura (
+   id_detalleFactura INT IDENTITY(1,1) PRIMARY KEY,
+   --
+   id_tarjeta INT,
+   id_factura INT, 
+   id_producto INT NOT NULL,
+   id_carrito INT NOT NULL,
+   FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+   FOREIGN KEY (id_carrito) REFERENCES Carrito(id_carrito),
+   FOREIGN KEY (id_factura) REFERENCES Factura(id_factura),
+   FOREIGN KEY (id_tarjeta) REFERENCES Tarjetas(id_tarjeta)
 );
