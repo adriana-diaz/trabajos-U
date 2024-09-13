@@ -67,3 +67,35 @@ El router necesita subinterfaces para cada VLAN. Aquí está la configuración p
 2. `configure terminal`
 3. Para la vlan 5 -> `interface FastEthernet0/1.5` -> `encapsulation dot1Q 5` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
 4. Para la vlan 7 -> `interface FastEthernet0/1.7` -> `encapsulation dot1Q 7` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
+---
+## Examinar la configuración actual del switch 
+Ejecutar el comando show running-config 
+Switch> show running-config 
+
+---
+## Asignar una contraseña en un dispositivo Cisco
+Contraseña en la consola (para acceso físico)
+1. `enable`
+2. `configure terminal`
+3. `line console 0`
+4. `password TU_CONTRASEÑA_AQUI`
+5. `login`
+6. `exit`
+
+Contraseña para acceso remoto (Telnet o SSH)
+1. `enable`
+2. `configure terminal`
+3. `line vty 0 4`
+4. `password TU_CONTRASEÑA_AQUI`
+5. `login`
+6. `exit`
+
+## Contraseña para el modo privilegiado (enable password)
+El modo privilegiado es el nivel de acceso que te permite hacer configuraciones. Para asegurar este acceso con una contraseña:
+1. `enable`
+2. `configure terminal`
+3. `enable secret TU_CONTRASEÑA_AQUI`
+4. `exit`
+
+Guardar la configuración
+Recuerda guardar la configuración para que se mantenga después de un reinicio: `write memory`
