@@ -25,6 +25,10 @@ Para configurar RIP en un router de Cisco Packet Tracer, sigue estos pasos:
 5. Usa el comando "net" para anunciar las redes conectadas al router.Por ejemplo, si tus redes son 192.168.1.0/24 y 10.0.0.0/8, usa los siguientes comandos:
 net 192.168.1.0
 net 10.0.0.0
-6. no auto-summary
+6. `no auto-summary`
 7.`do wr`
 8.`exit`
+
+
+
+   
