@@ -2,7 +2,7 @@
 
 ## Configurar una Interfaz FastEthernet (Fa)
 
-Para configurar un router en Cisco Packet Tracer y utilizar una interfaz FastEthernet (Fa), sigue estos pasos:
+Para configurar un router en Cisco Packet Tracer y utilizar una interfaz FastEthernet (Fa) y asiganar la direccion IP, sigue estos pasos:
 
 1. `enable`
 2. `configure terminal`
@@ -29,6 +29,14 @@ net 10.0.0.0
 7.`do wr`
 8.`exit`
 
-
+---
+## Convertir un switch de capa 3 a un router
+1. `enable`
+2. `configure terminal`
+3. `ip routing`
+4. `inter range fa 0/1-24`
+5. `no sh`
+6. `do wr`
+7. `exit`
 
    
