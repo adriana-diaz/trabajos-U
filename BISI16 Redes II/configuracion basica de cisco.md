@@ -2,7 +2,7 @@
 
 ## Configurar una Interfaz FastEthernet (Fa)
 
-Para configurar un router en Cisco Packet Tracer y utilizar una interfaz FastEthernet (Fa) y asiganar la direccion IP, sigue estos pasos:
+Para configurar un router en Cisco Packet Tracer y utilizar una interfaz FastEthernet (Fa) y asignar la direccion IP, sigue estos pasos:
 
 1. `enable`
 2. `configure terminal`
@@ -39,4 +39,31 @@ net 10.0.0.0
 6. `do wr`
 7. `exit`
 
-   
+---
+## Implementacion de VLANS para asignar troncales 
+Usare un ejemplo donde tengo 2 PC, PC1 con vlan 5 y PC2 con vlan 7, ambas van a dar con un switch y este a un router
+
+Paso 1: Configurar las VLANs en los Switches
+Configurar el Switch1 (donde están conectados los PCs de las VLANs 5 y 7)
+1. `enable`
+2. `configure terminal`
+3. Crear las vlans: `vlan 5`-> `name VLAN5` -> `exit`
+4. Crear las vlans: `vlan 7`-> `name VLAN7` -> `exit`
+5. Asigna las interfaces a sus respectivas VLANs: Fa0/1 (donde está conectado PC1) -> `interface Fa0/1` -> `switchport mode access` -> `switchport access vlan 5` -> `exit`
+6. Asigna las interfaces a sus respectivas VLANs: Fa0/2 (donde está conectado PC2) -> `interface Fa0/2` -> `switchport mode access` -> `switchport access vlan 7` -> `exit`
+
+Paso 2: Configurar los puertos troncales
+El enlace entre el Switch2 y el router debe configurarse como un enlace troncal para permitir la comunicación de las VLANs.
+En Switch 2
+1. `enable`
+2. `configure terminal`
+3. `interface Fa0/1`
+4. `switchport mode trunk`
+5. `exit`
+
+Paso 3: Configurar el Router para Inter-VLAN Routing (Router on a Stick)
+El router necesita subinterfaces para cada VLAN. Aquí está la configuración para tu router:
+1. `enable`
+2. `configure terminal`
+3. Para la vlan 5 -> `interface FastEthernet0/1.5` -> `encapsulation dot1Q 5` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
+4. Para la vlan 7 -> `interface FastEthernet0/1.7` -> `encapsulation dot1Q 7` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
