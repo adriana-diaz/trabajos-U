@@ -26,3 +26,5 @@ SUM         # Calcular el total de una columna numérica
 AVG         # Calcular el valor promedio de una columna numérica
 MIN         # Devolver el valor más pequeño de la columna seleccionada
 MAX         # Devolver el valor más grande de la columna seleccionada
+
+Más información: [Conceptos básicos, vocabulario y sintaxis de Access SQL](https://support.microsoft.com/es-es/topic/access-sql-conceptos-b%C3%A1sicos-vocabulario-y-sintaxis-444d0303-cde1-424e-9a74-e8dc3e460671)
