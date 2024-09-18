@@ -99,3 +99,16 @@ El modo privilegiado es el nivel de acceso que te permite hacer configuraciones.
 
 Guardar la configuración
 Recuerda guardar la configuración para que se mantenga después de un reinicio: `write memory`
+
+---
+## Configuración de Router Inalámbrico en Cisco Packet Tracer (DHCP)
+El protocolo de configuración dinámica de host (DHCP) es un protocolo de red que permite a un servidor DHCP/servidor de red asignar dinámicamente la dirección IP, la máscara de subred, los gateways predeterminados y otros parámetros de configuración de red a los dispositivos que lo soliciten.
+1. Añadir un Router Inalámbrico: Arrastra el router inalámbrico a la topología en Cisco Packet Tracer.
+1.1 Por ejmeplo el router `WRT300N` , lo apago fisicamente y le agrego el modulo correcto para que sirva wireless.
+1.2 Voy a la pestaña `GUI` y pongo la red y mascara que guste. En la seccion de `Wireless`   
+3. 
+4. Configuración Básica del Router: Accede a la configuración del router y configura el nombre, la contraseña y otros parámetros básicos.
+5. Configurar DHCP: Habilita el servidor DHCP en el router y define el rango de direcciones IP que se asignarán automáticamente a los dispositivos.
+6. Configuración de Seguridad Inalámbrica: Configura el SSID y el tipo de seguridad (por ejemplo, WPA2) para la red inalámbrica.
+7. Conexión de Dispositivos: Conecta dispositivos como computadoras portátiles y teléfonos al router inalámbrico.
+8. Verificación de Conectividad: Verifica que los dispositivos reciban una dirección IP a través de DHCP y que puedan comunicarse con el router.
