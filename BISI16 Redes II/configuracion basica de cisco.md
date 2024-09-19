@@ -35,7 +35,7 @@ Para configurar RIP en un router de Cisco Packet Tracer, sigue estos pasos:
 2. `configure terminal`
 3. `ip routing`
 4. `inter range fa 0/1-24`
-5. `no sh`
+5. `no switchport`
 6. `do wr`
 7. `exit`
 
