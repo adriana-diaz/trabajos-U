@@ -112,3 +112,32 @@ El protocolo de configuración dinámica de host (DHCP) es un protocolo de red q
 6. Configuración de Seguridad Inalámbrica: Configura el SSID y el tipo de seguridad (por ejemplo, WPA2) para la red inalámbrica.
 7. Conexión de Dispositivos: Conecta dispositivos como computadoras portátiles y teléfonos al router inalámbrico.
 8. Verificación de Conectividad: Verifica que los dispositivos reciban una dirección IP a través de DHCP y que puedan comunicarse con el router.
+---
+## VTP
+En el troncal 
+Switch>
+Switch>en
+Switch#config t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#vtp mode server
+Device mode already VTP SERVER.
+Switch(config)#vtp domain lab4
+Changing VTP domain name from NULL to lab4
+Switch(config)#vtp pass cisco
+Setting device VLAN database password to cisco
+Switch(config)#
+Switch(config)#do wr
+
+este es el switch hijo
+Switch>
+Switch>en
+Switch#config t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#vtp mode server
+Device mode already VTP SERVER.
+Switch(config)#vtp domain lab4
+Changing VTP domain name from NULL to lab4
+Switch(config)#vtp pass cisco
+Setting device VLAN database password to cisco
+Switch(config)#
+Switch(config)#do wr
