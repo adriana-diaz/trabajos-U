@@ -38,9 +38,9 @@ Para configurar RIP en un router de Cisco Packet Tracer, sigue estos pasos:
 5. `no switchport`
 6. `do wr`
 7. `exit`
-
-En caso tal que sea un Switch con Gigaethernet
-usas `interface range gig1/0/1 - 24`
+---
+## En caso tal que sea un Switch con Gigaethernet
+1. usas `interface range gig1/0/1 - 24`
 ---
 ## Implementacion de VLANS para asignar troncales 
 Usare un ejemplo donde tengo 2 PC, PC1 con vlan 5 y PC2 con vlan 7, ambas van a dar con un switch y este a un router
