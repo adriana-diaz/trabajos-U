@@ -9,8 +9,9 @@ Para configurar un router en Cisco Packet Tracer y utilizar una interfaz FastEth
 3. Accede a la interfaz FastEthernet que quieres configurar, por ejemplo:
 4. Asigna una dirección IP y máscara de subred a la interfaz: `interface FastEthernet0/0`
 5. Asigna una dirección IP y máscara de subred a la interfaz: `ip address [default gateway] [mascara de subred]`
-6. `do wr`
-7. `exit`
+6. digitar descripcion maximo 240 caracterers (OPCIONAL) `description Link to R2`
+7. `do wr`
+8. `exit`
 
 ---
 
