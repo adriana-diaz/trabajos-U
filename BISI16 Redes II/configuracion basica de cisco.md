@@ -72,8 +72,8 @@ El router necesita subinterfaces para cada VLAN. Aquí está la configuración p
 4. Para la vlan 7 -> `interface FastEthernet0/1.7` -> `encapsulation dot1Q 7` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
 ---
 ## Examinar la configuración actual del switch 
-Ejecutar el comando show running-config 
-Switch> show running-config 
+Ejecutar el comando `show running-config`
+Switch> `show running-config`
 
 ---
 ## Asignar una contraseña en un dispositivo Cisco
