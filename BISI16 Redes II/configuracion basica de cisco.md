@@ -70,6 +70,16 @@ El router necesita subinterfaces para cada VLAN. Aquí está la configuración p
 2. `configure terminal`
 3. Para la vlan 5 -> `interface FastEthernet0/1.5` -> `encapsulation dot1Q 5` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
 4. Para la vlan 7 -> `interface FastEthernet0/1.7` -> `encapsulation dot1Q 7` -> `ip address [default gateway o red que prefiera ponerle] [mascara de subred]`-> `exit`
+
+## Ejemplo
+En la figura 2, las VLAN 10, 20 y 30 admiten las computadoras de Cuerpo docente, Estudiante e Invitado (PC1, PC2 y PC3). El puerto F0/1 del switch S1 se configuró como puerto de enlace troncal y reenvía el tráfico para las VLAN 10, 20 y 30. La VLAN 99 se configuró como VLAN nativa.
+Muestra la configuración del puerto F0/1 en el conmutador S1 como puerto troncal. La VLAN nativa se cambia a VLAN 99 y la lista de VLAN permitidas se restringe a 10, 20, 30 y 99.
+
+1. S1(config)# interface fastEthernet 0/1
+2. S1(config-if)# switchport mode trunk
+3. S1(config-if)# switchport trunk native vlan 99
+4. S1(config-if)# switchport trunk allowed vlan 10,20,30,99
+5. S1(config-if)# end
 ---
 ## Examinar la configuración actual del switch 
 Ejecutar el comando `show running-config`
