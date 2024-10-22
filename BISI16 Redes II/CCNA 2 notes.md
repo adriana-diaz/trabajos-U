@@ -28,3 +28,30 @@
 - A la mitad del arrendamiento, el cliente envía un **DHCPREQUEST**.
 - El servidor responde con un **DHCPACK** para renovar el arrendamiento.
 - Si el arrendamiento expira, el cliente deberá iniciar el proceso de nuevo.
+
+
+
+ 
+# Resumen de HSRP (Hot Standby Router Protocol)
+
+## Prioridad HSRP
+- La **prioridad HSRP** predeterminada es **100**.
+- Un router con una **prioridad más alta** tomará el rol de **router activo** si se une a la red, desplazando a uno con menor prioridad.
+
+## Estados de HSRP
+1. **Inicial**: El router está iniciando y no ha determinado la configuración HSRP.
+2. **Escuchar**: 
+   - El router escucha mensajes de otros routers.
+   - Comienza a enviar **mensajes de saludo periódicos**.
+3. **Hablar**:
+   - El router asume el rol de **router activo** y envía mensajes de saludo a otros routers.
+4. **Aprendizaje**: 
+   - El router no ha determinado la dirección IP virtual y está aprendiendo la configuración HSRP.
+   - No participa en el proceso activo/en espera hasta que tenga la información necesaria.
+
+## Características
+- En el estado de aprendizaje, el router no ha determinado la dirección IP virtual.
+- En el estado de escucha, el router escucha los mensajes HSRP de otros routers en la red.
+
+## Función
+- HSRP proporciona **redundancia** y **alta disponibilidad** para routers en una red, asegurando que el tráfico continúe fluyendo en caso de fallo de un router activo.
