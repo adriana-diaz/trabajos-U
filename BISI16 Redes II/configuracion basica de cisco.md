@@ -141,6 +141,9 @@ Setting device VLAN database password to cisco
 Switch(config)#
 Switch(config)#do wr
 
+
+---
+
 este es el switch hijo
 Switch>
 Switch>en
@@ -154,3 +157,20 @@ Switch(config)#vtp pass cisco
 Setting device VLAN database password to cisco
 Switch(config)#
 Switch(config)#do wr
+
+---
+## Banner
+banner motd #No entrar sin permiso#
+enable secret cisco
+enable pass class
+enable pass class
+line console 0
+pass cisco
+login
+do wr
+exit
+line vty 0 4
+pass cisco
+login
+do wr
+exit
