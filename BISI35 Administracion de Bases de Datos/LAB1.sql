@@ -243,3 +243,17 @@ SELECT * FROM Detalle_factura;
 
 -- Seleccionar todos los registros de la tabla Venta
 SELECT * FROM Venta;
+
+--Haga un select de dos tablas haciendo uso de join, adjunte captura
+SELECT 
+    V.ID_Venta,
+    C.Nombre_Cliente,
+    C.Apellido1_Cliente,
+    V.Fecha,
+    V.Total
+FROM Venta V
+JOIN Cliente C ON V.Cliente = C.ID_Cliente;
+
+
+--backup 
+backup database BDVentasTecnica to disk = 'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\Backup\Lab1AdrianaDiazVargas.bak' ;
