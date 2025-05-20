@@ -88,9 +88,6 @@ Es una herramienta gráfica para administrar bases de datos, escribir consultas 
    - Elegí "Device" y seleccioná el archivo `.bak`.
    - Confirmá el nombre de la base de datos.
    - Hacé clic en OK para restaurar.
-
-📸 **Captura:** Mensaje de restauración exitosa.
-
 ---
 
 ## 🧠 Conceptos clave del laboratorio:
