@@ -65,6 +65,48 @@ values
 ('adriana diaz', 'Heredia', 'adrianadiaz3003@gmail.com', '2005-03-30', 20);
 go
 
+--clase 3 parte 2
+
+-- cambio de bd
+use master
+go
+
+create login UserAdminBD
+with password = 'Admin123456',
+check_expiration = on,
+check_policy = on;
+go
+
+--eliminar login
+drop login UserAdminBD;
+go
+
+--cambio de base de datos
+use NorthWind
+go
+
+--crear usuario para la bd asociado al login
+--creo un usuario de servicio
+create user Estudiante for login UserAdminBD;
+go
+
+--eliminar usuario
+drop user Estudiante;
+go
+
+
+--crear schema
+create schema ClaseAdBD
+AUTHORIZATION Estudiante;
+go
+
+--conceder permisos para crear tablas
+GRANT CREATE TABLE TO Estudiante;
+GO
+
+--revocar permisos para crear tablas
+revoke CREATE TABLE TO Estudiante;
+GO
 
 
 
