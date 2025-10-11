@@ -16,8 +16,8 @@ public class JavaApplication5 {
         int  menu = 0; 
         
         
-        //un bucle do-while que imprime un menÃƒÂº y lee la entrada del usuario. 
-        //El bucle se repite hasta que se seleccione la opciÃƒÂ³n '6', que corresponde a salir del programa.
+        //un bucle do-while que imprime un menú y lee la entrada del usuario. 
+        //El bucle se repite hasta que se seleccione la opción '6', que corresponde a salir del programa.
          do{
              
         System.out.println("Del 1 al 6 seleccione una opcion");
@@ -28,10 +28,10 @@ public class JavaApplication5 {
         System.out.println("5:Calculo de diÂ­as de vacaciones.");
         System.out.println("6:Salir");
         menu= reader.nextInt();
-        //se utiliza una estructura switch-case para ejecutar el cÃƒÂ³digo correspondiente a la opciÃƒÂ³n seleccionada por el usuario.
+        //se utiliza una estructura switch-case para ejecutar el  correspondiente a la  seleccionada por el usuario.
         switch (menu){
          case 1:
-             //La opciÃƒÂ³n '1' permite al usuario calcular las prestaciones laborales de un trabajador. 
+             //La  '1' permite al usuario calcular las prestaciones laborales de un trabajador. 
              //Se define una variable entera 'menu2' y se establece en 0.
         Scanner reader6 = new Scanner(System.in);
 
